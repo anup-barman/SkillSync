@@ -28,80 +28,86 @@
             <!-- Contest Tab Content -->
             <div id="contest-tab-content" class="tab-content active">
                 <div class="input-group">
-                <div class="toggle-group platform-group" id="platform-group">
-                    <label class="toggle-btn"><input type="radio" name="platform" value="codeforces" checked>
-                        <span>Codeforces</span></label>
-                    <label class="toggle-btn"><input type="radio" name="platform" value="atcoder">
-                        <span>AtCoder</span></label>
-                    <label class="toggle-btn"><input type="radio" name="platform" value="both">
-                        <span>Both</span></label>
-                </div>
+                    <div class="toggle-group platform-group" id="platform-group">
+                        <label class="toggle-btn"><input type="radio" name="platform" value="codeforces" checked>
+                            <span>Codeforces</span></label>
+                        <label class="toggle-btn"><input type="radio" name="platform" value="atcoder">
+                            <span>AtCoder</span></label>
+                        <label class="toggle-btn"><input type="radio" name="platform" value="both">
+                            <span>Both</span></label>
+                    </div>
 
-                <input type="text" id="handle-input" class="contest-handle-input" placeholder="CF handle(s) (comma separated)"
-                    autocomplete="off" />
-                <input type="text" id="handle-input-ac" class="contest-handle-input hidden" placeholder="AtCoder handle(s) (comma separated)"
-                    autocomplete="off" />
+                    <input type="text" id="handle-input" class="contest-handle-input"
+                        placeholder="CF handle(s) (comma separated)" autocomplete="off" />
+                    <input type="text" id="handle-input-ac" class="contest-handle-input hidden"
+                        placeholder="AtCoder handle(s) (comma separated)" autocomplete="off" />
 
-                <div id="user-profiles-container" class="user-profiles hidden">
-                    <!-- Dynamic user profile widgets will be injected here -->
-                </div>
+                    <div id="user-profiles-container" class="user-profiles hidden">
+                        <!-- Dynamic user profile widgets will be injected here -->
+                    </div>
 
-                <div class="filters-section">
-                    <div id="cf-source-filter" class="filter-row custom-collapse">
-                        <span class="filter-label">CF Source</span>
-                        <div class="toggle-group" id="source-group">
-                            <label class="toggle-btn"><input type="radio" name="source" value="normal" checked>
-                                <span>Normal</span></label>
-                            <label class="toggle-btn"><input type="radio" name="source" value="gym">
-                                <span>Gym</span></label>
-                            <label class="toggle-btn"><input type="radio" name="source" value="both">
-                                <span>Both</span></label>
+                    <div class="filters-section">
+                        <div id="cf-source-filter" class="filter-row custom-collapse">
+                            <span class="filter-label">CF Source</span>
+                            <div class="toggle-group" id="source-group">
+                                <label class="toggle-btn"><input type="radio" name="source" value="normal" checked>
+                                    <span>Normal</span></label>
+                                <label class="toggle-btn"><input type="radio" name="source" value="gym">
+                                    <span>Gym</span></label>
+                                <label class="toggle-btn"><input type="radio" name="source" value="both">
+                                    <span>Both</span></label>
+                            </div>
+                        </div>
+
+                        <div id="division-filters" class="filter-row custom-collapse">
+                            <span class="filter-label" id="division-label">CF Divisions</span>
+
+                            <div class="chip-group" id="cf-division-group">
+                                <label class="chip"><input type="checkbox" value="div1" checked> <span>Div.
+                                        1</span></label>
+                                <label class="chip"><input type="checkbox" value="div2" checked> <span>Div.
+                                        2</span></label>
+                                <label class="chip"><input type="checkbox" value="div3" checked> <span>Div.
+                                        3</span></label>
+                                <label class="chip"><input type="checkbox" value="div4" checked> <span>Div.
+                                        4</span></label>
+                                <label class="chip"><input type="checkbox" value="edu" checked> <span>Edu</span></label>
+                                <label class="chip"><input type="checkbox" value="global" checked>
+                                    <span>Global</span></label>
+                                <label class="chip"><input type="checkbox" value="other" checked>
+                                    <span>Other</span></label>
+                            </div>
+
+                            <div class="chip-group hidden" id="ac-division-group">
+                                <label class="chip"><input type="checkbox" value="abc" checked> <span>Beginner
+                                        (ABC)</span></label>
+                                <label class="chip"><input type="checkbox" value="arc" checked> <span>Regular
+                                        (ARC)</span></label>
+                                <label class="chip"><input type="checkbox" value="agc" checked> <span>Grand
+                                        (AGC)</span></label>
+                                <label class="chip"><input type="checkbox" value="ahc" checked> <span>Heuristic
+                                        (AHC)</span></label>
+                                <label class="chip"><input type="checkbox" value="other" checked>
+                                    <span>Other</span></label>
+                            </div>
+                        </div>
+
+                        <div class="filter-row">
+                            <span class="filter-label">Recency</span>
+                            <select id="recency-filter" class="custom-select">
+                                <option value="all">Any Time</option>
+                                <option value="0.5">Past 6 Months</option>
+                                <option value="1">Past 1 Year</option>
+                                <option value="2">Past 2 Years</option>
+                                <option value="3">Past 3 Years</option>
+                                <option value="5">Past 5 Years</option>
+                                <option value="7">Past 7 Years</option>
+                                <option value="10">Past 10 Years</option>
+                            </select>
                         </div>
                     </div>
 
-                    <div id="division-filters" class="filter-row custom-collapse">
-                        <span class="filter-label" id="division-label">CF Divisions</span>
-
-                        <div class="chip-group" id="cf-division-group">
-                            <label class="chip"><input type="checkbox" value="div1" checked> <span>Div. 1</span></label>
-                            <label class="chip"><input type="checkbox" value="div2" checked> <span>Div. 2</span></label>
-                            <label class="chip"><input type="checkbox" value="div3" checked> <span>Div. 3</span></label>
-                            <label class="chip"><input type="checkbox" value="div4" checked> <span>Div. 4</span></label>
-                            <label class="chip"><input type="checkbox" value="edu" checked> <span>Edu</span></label>
-                            <label class="chip"><input type="checkbox" value="global" checked>
-                                <span>Global</span></label>
-                            <label class="chip"><input type="checkbox" value="other" checked> <span>Other</span></label>
-                        </div>
-
-                        <div class="chip-group hidden" id="ac-division-group">
-                            <label class="chip"><input type="checkbox" value="abc" checked> <span>Beginner
-                                    (ABC)</span></label>
-                            <label class="chip"><input type="checkbox" value="arc" checked> <span>Regular
-                                    (ARC)</span></label>
-                            <label class="chip"><input type="checkbox" value="agc" checked> <span>Grand
-                                    (AGC)</span></label>
-                            <label class="chip"><input type="checkbox" value="ahc" checked> <span>Heuristic
-                                    (AHC)</span></label>
-                            <label class="chip"><input type="checkbox" value="other" checked> <span>Other</span></label>
-                        </div>
-                    </div>
-
-                    <div class="filter-row">
-                        <span class="filter-label">Recency</span>
-                        <select id="recency-filter" class="custom-select">
-                            <option value="all">Any Time</option>
-                            <option value="0.5">Past 6 Months</option>
-                            <option value="1">Past 1 Year</option>
-                            <option value="2">Past 2 Years</option>
-                            <option value="3">Past 3 Years</option>
-                            <option value="5">Past 5 Years</option>
-                            <option value="7">Past 7 Years</option>
-                            <option value="10">Past 10 Years</option>
-                        </select>
-                    </div>
-                </div>
-
-                <button id="get-contest-btn" class="generate-btn">Generate Contest</button>
+                    <button id="get-contest-btn" class="generate-btn">Generate Contest</button>
                 </div>
             </div>
 
@@ -109,7 +115,8 @@
             <div id="problem-tab-content" class="tab-content hidden">
                 <div class="input-group">
                     <div class="toggle-group platform-group" id="problem-platform-group">
-                        <label class="toggle-btn"><input type="radio" name="problem_platform" value="codeforces" checked>
+                        <label class="toggle-btn"><input type="radio" name="problem_platform" value="codeforces"
+                                checked>
                             <span>Codeforces</span></label>
                         <label class="toggle-btn"><input type="radio" name="problem_platform" value="atcoder">
                             <span>AtCoder</span></label>
@@ -117,30 +124,58 @@
                             <span>Both</span></label>
                     </div>
 
-                    <input type="text" id="problem-handle-cf" class="problem-handle-input" placeholder="CF handle(s) (comma separated)" autocomplete="off" />
-                    <input type="text" id="problem-handle-ac" class="problem-handle-input hidden" placeholder="AtCoder handle(s) (comma separated)" autocomplete="off" />
+                    <input type="text" id="problem-handle-cf" class="problem-handle-input"
+                        placeholder="CF handle(s) (comma separated)" autocomplete="off" />
+                    <input type="text" id="problem-handle-ac" class="problem-handle-input hidden"
+                        placeholder="AtCoder handle(s) (comma separated)" autocomplete="off" />
 
                     <div class="filters-section">
                         <div class="filter-row">
                             <span class="filter-label">Number of Problems</span>
-                            <input type="number" id="problem-count" class="custom-number-input" value="5" min="1" max="50" />
+                            <input type="number" id="problem-count" class="custom-number-input" value="5" min="1"
+                                max="50" />
                         </div>
-                        
+
                         <div id="problem-cf-rating" class="filter-row custom-collapse">
                             <span class="filter-label">CF Rating Range</span>
                             <div class="range-inputs">
-                                <input type="number" id="cf-min-rating" class="custom-number-input" placeholder="Min" min="800" step="100" />
+                                <input type="number" id="cf-min-rating" class="custom-number-input" placeholder="Min"
+                                    min="800" step="100" />
                                 <span class="range-separator">-</span>
-                                <input type="number" id="cf-max-rating" class="custom-number-input" placeholder="Max" min="800" step="100" />
+                                <input type="number" id="cf-max-rating" class="custom-number-input" placeholder="Max"
+                                    min="800" step="100" />
+                            </div>
+                        </div>
+
+                        <div id="problem-ac-filter-type" class="filter-row custom-collapse collapsed">
+                            <span class="filter-label">AtCoder Filter</span>
+                            <div class="toggle-group">
+                                <label class="toggle-btn"><input type="radio" name="ac_filter_type" value="difficulty" checked>
+                                    <span>Difficulty</span></label>
+                                <label class="toggle-btn"><input type="radio" name="ac_filter_type" value="points">
+                                    <span>Points</span></label>
                             </div>
                         </div>
 
                         <div id="problem-ac-rating" class="filter-row custom-collapse collapsed">
                             <span class="filter-label">AtCoder Difficulty</span>
                             <div class="range-inputs">
-                                <input type="number" id="ac-min-difficulty" class="custom-number-input" placeholder="Min" min="100" />
+                                <input type="number" id="ac-min-difficulty" class="custom-number-input"
+                                    placeholder="Min" min="0" />
                                 <span class="range-separator">-</span>
-                                <input type="number" id="ac-max-difficulty" class="custom-number-input" placeholder="Max" min="100" />
+                                <input type="number" id="ac-max-difficulty" class="custom-number-input"
+                                    placeholder="Max" min="0" />
+                            </div>
+                        </div>
+
+                        <div id="problem-ac-points" class="filter-row custom-collapse collapsed">
+                            <span class="filter-label">AtCoder Points</span>
+                            <div class="range-inputs">
+                                <input type="number" id="ac-min-points" class="custom-number-input"
+                                    placeholder="Min" min="0" step="any" />
+                                <span class="range-separator">-</span>
+                                <input type="number" id="ac-max-points" class="custom-number-input"
+                                    placeholder="Max" min="0" step="any" />
                             </div>
                         </div>
 

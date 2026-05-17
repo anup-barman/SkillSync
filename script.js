@@ -54,6 +54,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const acMaxDifficulty = document.getElementById('ac-max-difficulty');
     const problemCfRatingDiv = document.getElementById('problem-cf-rating');
     const problemAcRatingDiv = document.getElementById('problem-ac-rating');
+    const acMinPoints = document.getElementById('ac-min-points');
+    const acMaxPoints = document.getElementById('ac-max-points');
+    const problemAcPointsDiv = document.getElementById('problem-ac-points');
+    const problemAcFilterTypeDiv = document.getElementById('problem-ac-filter-type');
+    const acFilterTypeRadios = document.getElementsByName('ac_filter_type');
     const problemRecencyFilter = document.getElementById('problem-recency-filter');
     const problemsGrid = document.getElementById('problems-grid');
     const problemsEmptyState = document.getElementById('problems-empty-state');
@@ -150,25 +155,47 @@ document.addEventListener('DOMContentLoaded', () => {
     problemPlatformRadios.forEach(radio => {
         radio.addEventListener('change', (e) => {
             const platform = e.target.value;
+            let currentFilterType = 'difficulty';
+            for (const r of acFilterTypeRadios) if (r.checked) currentFilterType = r.value;
+
             if (platform === 'codeforces') {
                 problemHandleCf.classList.remove('hidden');
                 problemHandleAc.classList.add('hidden');
                 problemCfRatingDiv.classList.remove('collapsed');
+                problemAcFilterTypeDiv.classList.add('collapsed');
                 problemAcRatingDiv.classList.add('collapsed');
+                problemAcPointsDiv.classList.add('collapsed');
                 problemHandleCf.placeholder = "CF handle(s) (comma separated)";
             } else if (platform === 'atcoder') {
                 problemHandleCf.classList.add('hidden');
                 problemHandleAc.classList.remove('hidden');
                 problemCfRatingDiv.classList.add('collapsed');
-                problemAcRatingDiv.classList.remove('collapsed');
+                problemAcFilterTypeDiv.classList.remove('collapsed');
+                problemAcRatingDiv.classList.toggle('collapsed', currentFilterType !== 'difficulty');
+                problemAcPointsDiv.classList.toggle('collapsed', currentFilterType !== 'points');
                 problemHandleAc.placeholder = "AtCoder handle(s) (comma separated)";
             } else if (platform === 'both') {
                 problemHandleCf.classList.remove('hidden');
                 problemHandleAc.classList.remove('hidden');
                 problemCfRatingDiv.classList.remove('collapsed');
-                problemAcRatingDiv.classList.remove('collapsed');
+                problemAcFilterTypeDiv.classList.remove('collapsed');
+                problemAcRatingDiv.classList.toggle('collapsed', currentFilterType !== 'difficulty');
+                problemAcPointsDiv.classList.toggle('collapsed', currentFilterType !== 'points');
                 problemHandleCf.placeholder = "CF handle(s) (comma separated)";
                 problemHandleAc.placeholder = "AtCoder handle(s) (comma separated)";
+            }
+        });
+    });
+
+    acFilterTypeRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            const filterType = e.target.value;
+            if (filterType === 'difficulty') {
+                problemAcRatingDiv.classList.remove('collapsed');
+                problemAcPointsDiv.classList.add('collapsed');
+            } else {
+                problemAcRatingDiv.classList.add('collapsed');
+                problemAcPointsDiv.classList.remove('collapsed');
             }
         });
     });
@@ -734,10 +761,27 @@ document.addEventListener('DOMContentLoaded', () => {
             if (platform === 'atcoder' || platform === 'both') {
                 const acHandles = acHandlesStr.split(',').map(h => h.trim()).filter(h => h);
                 if (acHandles.length > 0) {
-                    let acMin = parseInt(acMinDifficulty.value);
-                    acMin = isNaN(acMin) ? 100 : Math.max(100, acMin);
-                    const acMax = parseInt(acMaxDifficulty.value) || 4000;
-                    await fetchAtcoderProblemsList(acHandles, cutoffTime, acMin, acMax, platform === 'both' ? Math.floor(count/2) : count);
+                    let acMinDiff = -Infinity;
+                    let acMaxDiff = Infinity;
+                    let acMinPts = 0;
+                    let acMaxPts = Infinity;
+                    
+                    let filterType = 'difficulty';
+                    for (const r of acFilterTypeRadios) if (r.checked) filterType = r.value;
+                    
+                    if (filterType === 'difficulty') {
+                        let parsedMin = parseFloat(acMinDifficulty.value);
+                        acMinDiff = isNaN(parsedMin) ? -Infinity : parsedMin;
+                        let parsedMax = parseFloat(acMaxDifficulty.value);
+                        acMaxDiff = isNaN(parsedMax) ? Infinity : parsedMax;
+                    } else {
+                        let parsedMin = parseFloat(acMinPoints.value);
+                        acMinPts = isNaN(parsedMin) ? 0 : parsedMin;
+                        let parsedMax = parseFloat(acMaxPoints.value);
+                        acMaxPts = isNaN(parsedMax) ? Infinity : parsedMax;
+                    }
+                    
+                    await fetchAtcoderProblemsList(acHandles, cutoffTime, acMinDiff, acMaxDiff, acMinPts, acMaxPts, platform === 'both' ? Math.floor(count/2) : count);
                 }
             }
 
@@ -838,7 +882,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function fetchAtcoderProblemsList(handles, cutoffTime, minDiff, maxDiff, limit) {
+    async function fetchAtcoderProblemsList(handles, cutoffTime, minDiff, maxDiff, minPts, maxPts, limit) {
         const solvedProblemIds = new Set();
         
         for (let i = 0; i < handles.length; i++) {
@@ -862,7 +906,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await new Promise(r => setTimeout(r, 400));
         
         const [probRes, modelRes] = await Promise.all([
-            fetch('https://kenkoooo.com/atcoder/resources/problems.json'),
+            fetch('https://kenkoooo.com/atcoder/resources/merged-problems.json'),
             fetch('https://kenkoooo.com/atcoder/resources/problem-models.json')
         ]);
         
@@ -884,10 +928,19 @@ document.addEventListener('DOMContentLoaded', () => {
             if (solvedProblemIds.has(p.id)) return false;
             
             const model = models[p.id];
-            if (!model || model.difficulty === undefined) return false;
             
-            const diff = Math.round(model.difficulty);
-            if (diff < minDiff || diff > maxDiff) return false;
+            // Check points condition
+            if (minPts > 0 || maxPts < Infinity) {
+                if (p.point === null || p.point === undefined) return false;
+                if (p.point < minPts || p.point > maxPts) return false;
+            }
+            
+            // Check difficulty condition
+            if (minDiff > -Infinity || maxDiff < Infinity) {
+                if (!model || model.difficulty === undefined) return false;
+                const diff = Math.round(model.difficulty);
+                if (diff < minDiff || diff > maxDiff) return false;
+            }
             
             if (cutoffTime > 0) {
                 const startTime = contestTimeMap.get(p.contest_id);
@@ -900,12 +953,19 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const selected = validProblems.slice(0, limit);
         for (const p of selected) {
-            const diff = models[p.id].difficulty;
+            const model = models[p.id];
+            const diff = model && model.difficulty !== undefined ? Math.round(model.difficulty) : null;
+            let ratingText = p.point !== null ? `${p.point} pts` : '';
+            if (diff !== null) {
+                ratingText += ratingText ? ` (Diff: ${Math.max(0, diff)})` : `Diff: ${Math.max(0, diff)}`;
+            }
+            
             fetchedProblemsList.push({
                 platform: 'atcoder',
                 id: p.id,
                 name: p.name,
-                rating: Math.max(0, Math.round(diff)),
+                rating: diff !== null ? Math.max(0, diff) : 0,
+                displayRating: ratingText || 'N/A',
                 link: `https://atcoder.jp/contests/${p.contest_id}/tasks/${p.id}`
             });
         }
@@ -946,7 +1006,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div class="problem-footer">
                     <div class="problem-rating" style="color: ${ratingColor}; margin-right: auto; font-size: 0.85rem;">
-                        <span class="rating-icon">★</span> ${p.rating}
+                        <span class="rating-icon">${isCF ? '★' : '•'}</span> ${p.displayRating || p.rating}
                     </div>
                     <a href="${p.link}" target="_blank" class="problem-solve-btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Solve</a>
                 </div>
