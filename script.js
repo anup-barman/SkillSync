@@ -471,10 +471,25 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        const attemptedBaseNames = new Set();
+        const contestIdToName = new Map();
+        for (const c of allContests) {
+            contestIdToName.set(c.id, c.name);
+        }
+        for (const cid of attemptedContests) {
+            const cname = contestIdToName.get(cid);
+            if (cname) {
+                attemptedBaseNames.add(cname.replace(/\(.*\)/, '').trim());
+            }
+        }
+
         const validContests = allContests.filter(c => {
             if (c.phase !== 'FINISHED') return false;
             if (attemptedContests.has(c.id)) return false;
             if (c.startTimeSeconds < cutoffTime) return false;
+
+            const baseName = c.name.replace(/\(.*\)/, '').trim();
+            if (attemptedBaseNames.has(baseName)) return false;
 
             const isGym = c.id >= 100000;
             if (isGym && fetchGym) return true;
