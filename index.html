@@ -59,12 +59,12 @@
                             <div class="input-group-wrapper" id="cf-handle-wrapper">
                                 <span class="input-prefix platform-cf">CF</span>
                                 <input type="text" id="handle-input" class="contest-handle-input"
-                                    placeholder="Codeforces handle(s) (comma separated)" autocomplete="off" />
+                                    placeholder="Codeforces handle(s)" autocomplete="off" />
                             </div>
                             <div class="input-group-wrapper hidden" id="ac-handle-wrapper">
                                 <span class="input-prefix platform-ac">AC</span>
                                 <input type="text" id="handle-input-ac" class="contest-handle-input"
-                                    placeholder="AtCoder handle(s) (comma separated)" autocomplete="off" />
+                                    placeholder="AtCoder handle(s)" autocomplete="off" />
                             </div>
                         </div>
                     </div>
@@ -107,7 +107,6 @@
                                     <span class="filter-label">CF Divisions</span>
                                     <div class="bulk-select-actions">
                                         <button type="button" class="bulk-btn select-all" data-target="cf-division-group">All</button>
-                                        <span class="bulk-separator">/</span>
                                         <button type="button" class="bulk-btn clear-all" data-target="cf-division-group">None</button>
                                     </div>
                                 </div>
@@ -139,7 +138,6 @@
                                     <span class="filter-label">AtCoder Types</span>
                                     <div class="bulk-select-actions">
                                         <button type="button" class="bulk-btn select-all" data-target="ac-division-group">All</button>
-                                        <span class="bulk-separator">/</span>
                                         <button type="button" class="bulk-btn clear-all" data-target="ac-division-group">None</button>
                                     </div>
                                 </div>
@@ -199,12 +197,12 @@
                             <div class="input-group-wrapper" id="problem-cf-handle-wrapper">
                                 <span class="input-prefix platform-cf">CF</span>
                                 <input type="text" id="problem-handle-cf" class="problem-handle-input"
-                                    placeholder="Codeforces handle(s) (comma separated)" autocomplete="off" />
+                                    placeholder="Codeforces handle(s)" autocomplete="off" />
                             </div>
                             <div class="input-group-wrapper hidden" id="problem-ac-handle-wrapper">
                                 <span class="input-prefix platform-ac">AC</span>
                                 <input type="text" id="problem-handle-ac" class="problem-handle-input"
-                                    placeholder="AtCoder handle(s) (comma separated)" autocomplete="off" />
+                                    placeholder="AtCoder handle(s)" autocomplete="off" />
                             </div>
                         </div>
                     </div>
@@ -224,6 +222,18 @@
                     <div class="filters-section">
                         <!-- Codeforces Filters Group -->
                         <div class="platform-filters-group" id="problem-cf-filters-group">
+                            <div id="problem-cf-filter-type" class="filter-row custom-collapse narrow-filter">
+                                <div class="filter-header-row">
+                                    <span class="filter-label">CF Filter</span>
+                                </div>
+                                <div class="toggle-group">
+                                    <label class="toggle-btn"><input type="radio" name="cf_filter_type" value="rating" checked>
+                                        <span>Rating</span></label>
+                                    <label class="toggle-btn"><input type="radio" name="cf_filter_type" value="letter">
+                                        <span>Letter</span></label>
+                                </div>
+                            </div>
+
                             <div id="problem-cf-rating" class="filter-row custom-collapse narrow-filter">
                                 <div class="filter-header-row">
                                     <span class="filter-label">CF Rating Range</span>
@@ -235,12 +245,32 @@
                                 </div>
                             </div>
 
+                            <div id="problem-cf-letters-row" class="filter-row custom-collapse collapsed wide-filter">
+                                <div class="filter-header-row">
+                                    <span class="filter-label">Problem Letters</span>
+                                </div>
+                                <div class="letters-filter-container">
+                                    <div class="chip-group" id="problem-cf-letters-group">
+                                        <label class="chip"><input type="checkbox" value="a"> <span>A</span></label>
+                                        <label class="chip"><input type="checkbox" value="b"> <span>B</span></label>
+                                        <label class="chip"><input type="checkbox" value="c"> <span>C</span></label>
+                                        <label class="chip"><input type="checkbox" value="d"> <span>D</span></label>
+                                        <label class="chip"><input type="checkbox" value="e"> <span>E</span></label>
+                                        <label class="chip"><input type="checkbox" value="f"> <span>F</span></label>
+                                        <label class="chip"><input type="checkbox" value="g"> <span>G</span></label>
+                                        <label class="chip"><input type="checkbox" value="h"> <span>H</span></label>
+                                    </div>
+                                    <div class="custom-index-wrapper">
+                                        <input type="text" id="problem-cf-custom-letters" class="custom-text-input" placeholder="Or custom (e.g. Ex, I, J)" autocomplete="off" />
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="filter-row wide-filter division-group-wrapper" id="problem-cf-division-wrapper">
                                 <div class="filter-header-row">
                                     <span class="filter-label">CF Divisions</span>
                                     <div class="bulk-select-actions">
                                         <button type="button" class="bulk-btn select-all" data-target="problem-cf-division-group">All</button>
-                                        <span class="bulk-separator">/</span>
                                         <button type="button" class="bulk-btn clear-all" data-target="problem-cf-division-group">None</button>
                                     </div>
                                 </div>
@@ -294,12 +324,32 @@
                                 </div>
                             </div>
 
+                            <div id="problem-ac-letters-row" class="filter-row custom-collapse collapsed wide-filter">
+                                <div class="filter-header-row">
+                                    <span class="filter-label">Problem Letters</span>
+                                </div>
+                                <div class="letters-filter-container">
+                                    <div class="chip-group" id="problem-ac-letters-group">
+                                        <label class="chip"><input type="checkbox" value="a"> <span>A</span></label>
+                                        <label class="chip"><input type="checkbox" value="b"> <span>B</span></label>
+                                        <label class="chip"><input type="checkbox" value="c"> <span>C</span></label>
+                                        <label class="chip"><input type="checkbox" value="d"> <span>D</span></label>
+                                        <label class="chip"><input type="checkbox" value="e"> <span>E</span></label>
+                                        <label class="chip"><input type="checkbox" value="f"> <span>F</span></label>
+                                        <label class="chip"><input type="checkbox" value="g"> <span>G</span></label>
+                                        <label class="chip"><input type="checkbox" value="h"> <span>H</span></label>
+                                    </div>
+                                    <div class="custom-index-wrapper">
+                                        <input type="text" id="problem-ac-custom-letters" class="custom-text-input" placeholder="Or custom (e.g. Ex, I, J)" autocomplete="off" />
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="filter-row wide-filter division-group-wrapper" id="problem-ac-division-wrapper">
                                 <div class="filter-header-row">
                                     <span class="filter-label">AtCoder Types</span>
                                     <div class="bulk-select-actions">
                                         <button type="button" class="bulk-btn select-all" data-target="problem-ac-division-group">All</button>
-                                        <span class="bulk-separator">/</span>
                                         <button type="button" class="bulk-btn clear-all" data-target="problem-ac-division-group">None</button>
                                     </div>
                                 </div>
@@ -346,28 +396,6 @@
                                     <option value="7">Past 7 Years</option>
                                     <option value="10">Past 10 Years</option>
                                 </select>
-                            </div>
-                        </div>
-
-                        <!-- Letters Filter Row (shared visually in layout, controlled by logic) -->
-                        <div id="problem-letters-filter-row" class="filter-row custom-collapse wide-filter">
-                            <div class="filter-header-row">
-                                <span class="filter-label">Problem Letters</span>
-                            </div>
-                            <div class="letters-filter-container">
-                                <div class="chip-group" id="problem-letters-group">
-                                    <label class="chip"><input type="checkbox" value="a"> <span>A</span></label>
-                                    <label class="chip"><input type="checkbox" value="b"> <span>B</span></label>
-                                    <label class="chip"><input type="checkbox" value="c"> <span>C</span></label>
-                                    <label class="chip"><input type="checkbox" value="d"> <span>D</span></label>
-                                    <label class="chip"><input type="checkbox" value="e"> <span>E</span></label>
-                                    <label class="chip"><input type="checkbox" value="f"> <span>F</span></label>
-                                    <label class="chip"><input type="checkbox" value="g"> <span>G</span></label>
-                                    <label class="chip"><input type="checkbox" value="h"> <span>H</span></label>
-                                </div>
-                                <div class="custom-index-wrapper">
-                                    <input type="text" id="problem-custom-letters" class="custom-text-input" placeholder="Or custom (e.g. Ex, I, J)" autocomplete="off" />
-                                </div>
                             </div>
                         </div>
                     </div>

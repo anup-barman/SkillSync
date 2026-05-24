@@ -68,18 +68,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const problemAcPointsDiv = document.getElementById('problem-ac-points');
     const problemAcFilterTypeDiv = document.getElementById('problem-ac-filter-type');
     const acFilterTypeRadios = document.getElementsByName('ac_filter_type');
+    const cfFilterTypeRadios = document.getElementsByName('cf_filter_type');
     const problemRecencyFilter = document.getElementById('problem-recency-filter');
     const problemsGrid = document.getElementById('problems-grid');
     const problemsEmptyState = document.getElementById('problems-empty-state');
-    const problemLettersGroup = document.getElementById('problem-letters-group');
-    const problemCustomLetters = document.getElementById('problem-custom-letters');
+    const problemCfLettersRow = document.getElementById('problem-cf-letters-row');
+    const problemAcLettersRow = document.getElementById('problem-ac-letters-row');
     const problemCfDivisionGroup = document.getElementById('problem-cf-division-group');
     const problemAcDivisionGroup = document.getElementById('problem-ac-division-group');
     const problemCfDivisionWrapper = document.getElementById('problem-cf-division-wrapper');
     const problemAcDivisionWrapper = document.getElementById('problem-ac-division-wrapper');
     const problemDivisionFiltersDiv = document.getElementById('problem-division-filters');
     const problemDivisionLabel = document.getElementById('problem-division-label');
-    const problemLettersFilterRow = document.getElementById('problem-letters-filter-row');
     const copyAllProblemsBtn = document.getElementById('copy-all-problems-btn');
     const problemFilterSubTabs = document.getElementById('problem-filter-sub-tabs');
     const problemCfFiltersGroup = document.getElementById('problem-cf-filters-group');
@@ -198,8 +198,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function updateProblemFiltersUI() {
         const platform = getSelectedProblemPlatform();
-        let currentFilterType = 'difficulty';
-        for (const r of acFilterTypeRadios) if (r.checked) currentFilterType = r.value;
+        let acFilterType = 'difficulty';
+        for (const r of acFilterTypeRadios) if (r.checked) acFilterType = r.value;
+        let cfFilterType = 'rating';
+        for (const r of cfFilterTypeRadios) if (r.checked) cfFilterType = r.value;
 
         // Default reset sub-tabs switcher visibility
         problemFilterSubTabs.classList.add('hidden');
@@ -210,38 +212,37 @@ document.addEventListener('DOMContentLoaded', () => {
             problemCfFiltersGroup.classList.remove('hidden');
             problemAcFiltersGroup.classList.add('hidden');
 
-            // Letters are always shown/active for CF
-            problemLettersFilterRow.classList.remove('collapsed');
+            problemCfRatingDiv.classList.toggle('collapsed', cfFilterType !== 'rating');
+            problemCfLettersRow.classList.toggle('collapsed', cfFilterType !== 'letter');
         } else if (platform === 'atcoder') {
             problemCfHandleWrapper.classList.add('hidden');
             problemAcHandleWrapper.classList.remove('hidden');
             problemCfFiltersGroup.classList.add('hidden');
             problemAcFiltersGroup.classList.remove('hidden');
             
-            // Toggle difficulty or points collapses
-            problemAcRatingDiv.classList.toggle('collapsed', currentFilterType !== 'difficulty');
-            problemAcPointsDiv.classList.toggle('collapsed', currentFilterType !== 'points');
-
-            // Letters are only shown if AtCoder filter type is 'letter'
-            problemLettersFilterRow.classList.toggle('collapsed', currentFilterType !== 'letter');
+            // Toggle difficulty, points, or letters collapses
+            problemAcRatingDiv.classList.toggle('collapsed', acFilterType !== 'difficulty');
+            problemAcPointsDiv.classList.toggle('collapsed', acFilterType !== 'points');
+            problemAcLettersRow.classList.toggle('collapsed', acFilterType !== 'letter');
         } else if (platform === 'both') {
             problemFilterSubTabs.classList.remove('hidden');
             problemCfHandleWrapper.classList.remove('hidden');
             problemAcHandleWrapper.classList.remove('hidden');
             
-            // Toggle difficulty or points collapses
-            problemAcRatingDiv.classList.toggle('collapsed', currentFilterType !== 'difficulty');
-            problemAcPointsDiv.classList.toggle('collapsed', currentFilterType !== 'points');
+            // Toggle difficulty or points collapses for AtCoder
+            problemAcRatingDiv.classList.toggle('collapsed', acFilterType !== 'difficulty');
+            problemAcPointsDiv.classList.toggle('collapsed', acFilterType !== 'points');
 
             const activePlatform = problemFilterSubTabs.querySelector('.sub-tab-btn.active').getAttribute('data-platform');
             if (activePlatform === 'cf') {
                 problemCfFiltersGroup.classList.remove('hidden');
                 problemAcFiltersGroup.classList.add('hidden');
-                problemLettersFilterRow.classList.remove('collapsed');
+                problemCfRatingDiv.classList.toggle('collapsed', cfFilterType !== 'rating');
+                problemCfLettersRow.classList.toggle('collapsed', cfFilterType !== 'letter');
             } else {
                 problemCfFiltersGroup.classList.add('hidden');
                 problemAcFiltersGroup.classList.remove('hidden');
-                problemLettersFilterRow.classList.toggle('collapsed', currentFilterType !== 'letter');
+                problemAcLettersRow.classList.toggle('collapsed', acFilterType !== 'letter');
             }
         }
     }
@@ -252,6 +253,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     acFilterTypeRadios.forEach(radio => {
+        radio.addEventListener('change', updateProblemFiltersUI);
+    });
+
+    cfFilterTypeRadios.forEach(radio => {
         radio.addEventListener('change', updateProblemFiltersUI);
     });
 
@@ -524,19 +529,27 @@ document.addEventListener('DOMContentLoaded', () => {
         return selected;
     }
 
-    function getSelectedProblemLetters() {
-        const selected = new Set();
-        const checkboxes = problemLettersGroup.querySelectorAll('input[type="checkbox"]');
-        checkboxes.forEach(cb => {
-            if (cb.checked) selected.add(cb.value.toLowerCase());
-        });
+    function getSelectedProblemLetters(platform) {
+        const prefix = platform === 'cf' ? 'cf-' : 'ac-';
+        const groupEl = document.getElementById(`problem-${prefix}letters-group`);
+        const customEl = document.getElementById(`problem-${prefix}custom-letters`);
         
-        const customVal = problemCustomLetters.value.trim();
-        if (customVal) {
-            customVal.split(',').forEach(val => {
-                const cleaned = val.trim().toLowerCase();
-                if (cleaned) selected.add(cleaned);
+        const selected = new Set();
+        if (groupEl) {
+            const checkboxes = groupEl.querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                if (cb.checked) selected.add(cb.value.toLowerCase());
             });
+        }
+        
+        if (customEl) {
+            const customVal = customEl.value.trim();
+            if (customVal) {
+                customVal.split(',').forEach(val => {
+                    const cleaned = val.trim().toLowerCase();
+                    if (cleaned) selected.add(cleaned);
+                });
+            }
         }
         return selected;
     }
@@ -1005,8 +1018,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const count = parseInt(problemCount.value) || 5;
         const recencyVal = problemRecencyFilter.value;
         const cutoffTime = getCutoffTime(recencyVal);
-        const selectedLetters = getSelectedProblemLetters();
-
         hideError();
         problemsEmptyState.classList.add('hidden');
         problemsGrid.innerHTML = '';
@@ -1027,7 +1038,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     let cfMin = parseInt(cfMinRating.value);
                     cfMin = isNaN(cfMin) ? 800 : Math.max(800, cfMin);
                     const cfMax = parseInt(cfMaxRating.value) || 3500;
-                    await fetchCodeforcesProblemsList(cfHandles, cutoffTime, cfMin, cfMax, platform === 'both' ? Math.ceil(count/2) : count, selectedLetters, cfDivisions);
+                    
+                    let cfFilterType = 'rating';
+                    for (const r of cfFilterTypeRadios) if (r.checked) cfFilterType = r.value;
+                    
+                    const cfSelectedLetters = getSelectedProblemLetters('cf');
+                    
+                    await fetchCodeforcesProblemsList(cfHandles, cutoffTime, cfMin, cfMax, platform === 'both' ? Math.ceil(count/2) : count, cfSelectedLetters, cfDivisions, cfFilterType);
                 }
             }
             
@@ -1058,7 +1075,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         acMaxPts = isNaN(parsedMax) ? Infinity : parsedMax;
                     }
                     
-                    await fetchAtcoderProblemsList(acHandles, cutoffTime, acMinDiff, acMaxDiff, acMinPts, acMaxPts, platform === 'both' ? Math.floor(count/2) : count, selectedLetters, acDivisions, filterType);
+                    const acSelectedLetters = getSelectedProblemLetters('ac');
+                    
+                    await fetchAtcoderProblemsList(acHandles, cutoffTime, acMinDiff, acMaxDiff, acMinPts, acMaxPts, platform === 'both' ? Math.floor(count/2) : count, acSelectedLetters, acDivisions, filterType);
                 }
             }
 
@@ -1086,7 +1105,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function fetchCodeforcesProblemsList(handles, cutoffTime, minRating, maxRating, limit, selectedLetters, selectedDivisions) {
+    async function fetchCodeforcesProblemsList(handles, cutoffTime, minRating, maxRating, limit, selectedLetters, selectedDivisions, filterType) {
         loaderText.textContent = `Fetching Codeforces submissions...`;
         
         const solvedProblemNames = new Set();
@@ -1137,10 +1156,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const validProblems = problems.filter(p => {
-            if (!p.rating) return false;
-            if (p.rating < minRating || p.rating > maxRating) return false;
             if (solvedProblemNames.has(p.name)) return false;
-            if (!matchProblemIndex(p.index, selectedLetters)) return false;
+            
+            if (filterType === 'rating') {
+                if (!p.rating || p.rating < minRating || p.rating > maxRating) return false;
+            } else if (filterType === 'letter') {
+                if (!matchProblemIndex(p.index, selectedLetters)) return false;
+            }
             
             const cInfo = contestInfoMap.get(p.contestId) || { startTime: 0, division: 'other' };
             if (!selectedDivisions.has(cInfo.division)) return false;
