@@ -70,6 +70,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const problemDivisionLabel = document.getElementById('problem-division-label');
     const problemLettersFilterRow = document.getElementById('problem-letters-filter-row');
 
+    // Filters Toggle
+    const toggleFiltersBtn = document.getElementById('toggle-filters-btn');
+    const contestFiltersWrapper = document.getElementById('contest-filters-wrapper');
+    const problemFiltersWrapper = document.getElementById('problem-filters-wrapper');
+    const acLangFilter = document.getElementById('ac-language-filter');
+    const problemAcLangFilter = document.getElementById('problem-ac-language-filter');
+
     let contestHistory = [];
     let fetchedProblemsList = [];
     let lastFetchedHandles = "";
@@ -108,13 +115,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 heroSection.classList.remove('hidden');
                 historySection.classList.remove('hidden');
                 problemsSection.classList.add('hidden');
+                toggleFiltersBtn.classList.toggle('active', !contestFiltersWrapper.classList.contains('collapsed'));
             } else {
                 heroSection.classList.add('hidden');
                 historySection.classList.add('hidden');
                 problemsSection.classList.remove('hidden');
+                toggleFiltersBtn.classList.toggle('active', !problemFiltersWrapper.classList.contains('collapsed'));
             }
             hideError();
         });
+    });
+
+    // Toggle advanced filters drawer
+    toggleFiltersBtn.addEventListener('click', () => {
+        const activeTab = document.querySelector('.tab-btn.active').getAttribute('data-tab');
+        if (activeTab === 'contest') {
+            contestFiltersWrapper.classList.toggle('collapsed');
+            toggleFiltersBtn.classList.toggle('active', !contestFiltersWrapper.classList.contains('collapsed'));
+        } else {
+            problemFiltersWrapper.classList.toggle('collapsed');
+            toggleFiltersBtn.classList.toggle('active', !problemFiltersWrapper.classList.contains('collapsed'));
+        }
     });
 
     // Platform UI Selection Logic (Contest)
@@ -128,6 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Hide CF specific source filter by default
             cfSourceFilter.classList.add('collapsed');
+            acLangFilter.classList.add('collapsed');
             
             if (platform === 'codeforces') {
                 cfDivisionGroup.classList.remove('hidden');
@@ -137,6 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 handleInputAc.classList.add('hidden');
             } else if (platform === 'atcoder') {
                 acDivisionGroup.classList.remove('hidden');
+                acLangFilter.classList.remove('collapsed');
                 divisionLabel.textContent = "AtCoder Types";
                 handleInput.classList.add('hidden');
                 handleInputAc.classList.remove('hidden');
@@ -144,6 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 cfDivisionGroup.classList.remove('hidden');
                 acDivisionGroup.classList.remove('hidden');
                 cfSourceFilter.classList.remove('collapsed');
+                acLangFilter.classList.remove('collapsed');
                 divisionLabel.textContent = "CF Divisions & AtCoder Types";
                 handleInput.classList.remove('hidden');
                 handleInputAc.classList.remove('hidden');
@@ -166,6 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Hide all division groups first
         problemCfDivisionGroup.classList.add('hidden');
         problemAcDivisionGroup.classList.add('hidden');
+        problemAcLangFilter.classList.add('collapsed');
 
         if (platform === 'codeforces') {
             problemHandleCf.classList.remove('hidden');
@@ -187,6 +212,7 @@ document.addEventListener('DOMContentLoaded', () => {
             problemHandleAc.classList.remove('hidden');
             problemCfRatingDiv.classList.add('collapsed');
             problemAcFilterTypeDiv.classList.remove('collapsed');
+            problemAcLangFilter.classList.remove('collapsed');
             problemAcRatingDiv.classList.toggle('collapsed', currentFilterType !== 'difficulty');
             problemAcPointsDiv.classList.toggle('collapsed', currentFilterType !== 'points');
             problemHandleAc.placeholder = "AtCoder handle(s) (comma separated)";
@@ -202,6 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
             problemHandleAc.classList.remove('hidden');
             problemCfRatingDiv.classList.remove('collapsed');
             problemAcFilterTypeDiv.classList.remove('collapsed');
+            problemAcLangFilter.classList.remove('collapsed');
             problemAcRatingDiv.classList.toggle('collapsed', currentFilterType !== 'difficulty');
             problemAcPointsDiv.classList.toggle('collapsed', currentFilterType !== 'points');
             problemHandleCf.placeholder = "CF handle(s) (comma separated)";
@@ -630,13 +657,57 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ========== ATCODER LOGIC ==========
     
+    function hasJapanese(text) {
+        if (!text) return false;
+        return /[\u3040-\u309f\u30a0-\u30ff\u4e00-\u9faf]/.test(text);
+    }
+
     function categorizeAtCoderContest(id) {
         if (!id) return 'other';
         if (id.startsWith('abc')) return 'abc';
         if (id.startsWith('arc')) return 'arc';
         if (id.startsWith('agc')) return 'agc';
         if (id.startsWith('ahc')) return 'ahc';
+        if (id.startsWith('awc')) return 'awc';
         return 'other';
+    }
+
+    async function fetchAllAtCoderSubmissions(handle) {
+        let allSubs = [];
+        let fromSecond = 0;
+        
+        while (true) {
+            const res = await fetch(`https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions?user=${handle}&from_second=${fromSecond}`);
+            
+            const contentType = res.headers.get("content-type");
+            if (!res.ok || !contentType || !contentType.includes("application/json")) {
+                throw new Error(`Failed to fetch user ${handle} from Kenkoooo API. Rate limit may be exceeded.`);
+            }
+            
+            const subs = await res.json();
+            allSubs = allSubs.concat(subs);
+            
+            if (subs.length < 500) {
+                break;
+            }
+            
+            let maxSecond = fromSecond;
+            for (const s of subs) {
+                if (s.epoch_second > maxSecond) {
+                    maxSecond = s.epoch_second;
+                }
+            }
+            
+            if (maxSecond === fromSecond) {
+                fromSecond += 1;
+            } else {
+                fromSecond = maxSecond + 1;
+            }
+            
+            await new Promise(r => setTimeout(r, 1000));
+        }
+        
+        return allSubs;
     }
 
     async function fetchAtcoderContest(handles, cutoffTime) {
@@ -649,17 +720,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const allSubs = [];
             for (let i = 0; i < handles.length; i++) {
                 const handle = handles[i];
-                const res = await fetch(`https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions?user=${handle}&from_second=0`);
+                loaderText.textContent = `Fetching AtCoder submissions for ${handle} (${i+1}/${handles.length})...`;
                 
-                const contentType = res.headers.get("content-type");
-                if (!res.ok || !contentType || !contentType.includes("application/json")) {
-                    throw new Error(`Failed to fetch user ${handle} from Kenkoooo API. Rate limit may be exceeded.`);
-                }
-                
-                allSubs.push(await res.json());
+                const subs = await fetchAllAtCoderSubmissions(handle);
+                allSubs.push(subs);
                 
                 if (i < handles.length - 1) {
-                    await new Promise(r => setTimeout(r, 400));
+                    await new Promise(r => setTimeout(r, 1000));
                 }
             }
 
@@ -679,13 +746,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!res.ok || !resContentType || !resContentType.includes("application/json")) {
             throw new Error("Failed to fetch AtCoder contests from Kenkoooo.");
         }
-        const allContests = await res.json();
+        const acEnglishOnly = document.getElementById('contest-ac-english-only').checked;
 
         const validContests = allContests.filter(c => {
             if (attemptedContests.has(c.id)) return false;
             
             if (cutoffTime > 0 && c.start_epoch_second < cutoffTime) return false;
             if (c.start_epoch_second > (Date.now() / 1000)) return false;
+
+            if (acEnglishOnly && hasJapanese(c.title)) return false;
 
             const type = categorizeAtCoderContest(c.id);
             if (divisions.has(type)) return true;
@@ -700,7 +769,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const randomIndex = randomArray[0] % validContests.length;
         const randomContest = validContests[randomIndex];
         const category = categorizeAtCoderContest(randomContest.id);
-        const map = { 'abc': 'Beginner', 'arc': 'Regular', 'agc': 'Grand', 'ahc': 'Heuristic', 'other': 'Contest' };
+        const map = { 'abc': 'Beginner', 'arc': 'Regular', 'agc': 'Grand', 'ahc': 'Heuristic', 'awc': 'Weekday (AWC)', 'other': 'Contest' };
 
         const cLink = `https://atcoder.jp/contests/${randomContest.id}`;
         
@@ -965,10 +1034,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const handle = handles[i];
             loaderText.textContent = `Fetching AtCoder submissions for ${handle} (${i+1}/${handles.length})...`;
             
-            const res = await fetch(`https://kenkoooo.com/atcoder/atcoder-api/v3/user/submissions?user=${handle}&from_second=0`);
-            if (!res.ok) throw new Error(`Kenkoooo rate limit exceeded for ${handle}.`);
-            
-            const subs = await res.json();
+            const subs = await fetchAllAtCoderSubmissions(handle);
             for (const sub of subs) {
                 if (sub.result === 'AC') {
                     solvedProblemIds.add(sub.problem_id);
@@ -991,16 +1057,26 @@ document.addEventListener('DOMContentLoaded', () => {
         const allProbs = await probRes.json();
         const models = await modelRes.json();
 
-        let contestTimeMap = new Map();
-        if (cutoffTime > 0) {
+        const acEnglishOnly = document.getElementById('problem-ac-english-only').checked;
+        let contestInfoMap = new Map();
+        if (cutoffTime > 0 || acEnglishOnly) {
             const cRes = await fetch('https://kenkoooo.com/atcoder/resources/contests.json');
             const contests = await cRes.json();
             for (const c of contests) {
-                contestTimeMap.set(c.id, c.start_epoch_second);
+                contestInfoMap.set(c.id, {
+                    startTime: c.start_epoch_second,
+                    hasJapaneseTitle: hasJapanese(c.title)
+                });
             }
         }
         
         const validProblems = allProbs.filter(p => {
+            if (acEnglishOnly) {
+                if (hasJapanese(p.name)) return false;
+                const cInfo = contestInfoMap.get(p.contest_id);
+                if (cInfo && cInfo.hasJapaneseTitle) return false;
+            }
+
             if (solvedProblemIds.has(p.id)) return false;
             
             const model = models[p.id];
@@ -1022,7 +1098,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             
             if (cutoffTime > 0) {
-                const startTime = contestTimeMap.get(p.contest_id);
+                const cInfo = contestInfoMap.get(p.contest_id);
+                const startTime = cInfo ? cInfo.startTime : 0;
                 if (!startTime || startTime < cutoffTime) return false;
             }
             return true;
