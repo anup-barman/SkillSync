@@ -351,6 +351,31 @@ input[type="text"]:focus, input[type="number"].custom-number-input:focus {
     color: var(--text-primary);
 }
 
+/* Custom Text Input */
+.custom-text-input {
+    width: 100%;
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    border: 1px solid var(--card-border);
+    background: rgba(0, 0, 0, 0.2);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.custom-text-input::placeholder {
+    color: #475569;
+}
+
+.custom-text-input:focus {
+    border-color: var(--accent-1);
+    box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+
 /* Generate Button */
 button.generate-btn {
     padding: 1.2rem 1.5rem;

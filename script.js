@@ -62,6 +62,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const problemRecencyFilter = document.getElementById('problem-recency-filter');
     const problemsGrid = document.getElementById('problems-grid');
     const problemsEmptyState = document.getElementById('problems-empty-state');
+    const problemLettersGroup = document.getElementById('problem-letters-group');
+    const problemCustomLetters = document.getElementById('problem-custom-letters');
+    const problemCfDivisionGroup = document.getElementById('problem-cf-division-group');
+    const problemAcDivisionGroup = document.getElementById('problem-ac-division-group');
+    const problemDivisionFiltersDiv = document.getElementById('problem-division-filters');
+    const problemDivisionLabel = document.getElementById('problem-division-label');
+    const problemLettersFilterRow = document.getElementById('problem-letters-filter-row');
 
     let contestHistory = [];
     let fetchedProblemsList = [];
@@ -151,53 +158,72 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    function updateProblemFiltersUI() {
+        const platform = getSelectedProblemPlatform();
+        let currentFilterType = 'difficulty';
+        for (const r of acFilterTypeRadios) if (r.checked) currentFilterType = r.value;
+
+        // Hide all division groups first
+        problemCfDivisionGroup.classList.add('hidden');
+        problemAcDivisionGroup.classList.add('hidden');
+
+        if (platform === 'codeforces') {
+            problemHandleCf.classList.remove('hidden');
+            problemHandleAc.classList.add('hidden');
+            problemCfRatingDiv.classList.remove('collapsed');
+            problemAcFilterTypeDiv.classList.add('collapsed');
+            problemAcRatingDiv.classList.add('collapsed');
+            problemAcPointsDiv.classList.add('collapsed');
+            problemHandleCf.placeholder = "CF handle(s) (comma separated)";
+
+            problemDivisionFiltersDiv.classList.remove('collapsed');
+            problemCfDivisionGroup.classList.remove('hidden');
+            problemDivisionLabel.textContent = "CF Divisions";
+
+            // Letters are always shown/active for CF
+            problemLettersFilterRow.classList.remove('collapsed');
+        } else if (platform === 'atcoder') {
+            problemHandleCf.classList.add('hidden');
+            problemHandleAc.classList.remove('hidden');
+            problemCfRatingDiv.classList.add('collapsed');
+            problemAcFilterTypeDiv.classList.remove('collapsed');
+            problemAcRatingDiv.classList.toggle('collapsed', currentFilterType !== 'difficulty');
+            problemAcPointsDiv.classList.toggle('collapsed', currentFilterType !== 'points');
+            problemHandleAc.placeholder = "AtCoder handle(s) (comma separated)";
+
+            problemDivisionFiltersDiv.classList.remove('collapsed');
+            problemAcDivisionGroup.classList.remove('hidden');
+            problemDivisionLabel.textContent = "AtCoder Types";
+
+            // Letters are only shown if AtCoder filter type is 'letter'
+            problemLettersFilterRow.classList.toggle('collapsed', currentFilterType !== 'letter');
+        } else if (platform === 'both') {
+            problemHandleCf.classList.remove('hidden');
+            problemHandleAc.classList.remove('hidden');
+            problemCfRatingDiv.classList.remove('collapsed');
+            problemAcFilterTypeDiv.classList.remove('collapsed');
+            problemAcRatingDiv.classList.toggle('collapsed', currentFilterType !== 'difficulty');
+            problemAcPointsDiv.classList.toggle('collapsed', currentFilterType !== 'points');
+            problemHandleCf.placeholder = "CF handle(s) (comma separated)";
+            problemHandleAc.placeholder = "AtCoder handle(s) (comma separated)";
+
+            problemDivisionFiltersDiv.classList.remove('collapsed');
+            problemCfDivisionGroup.classList.remove('hidden');
+            problemAcDivisionGroup.classList.remove('hidden');
+            problemDivisionLabel.textContent = "CF Divisions & AtCoder Types";
+
+            // Letters are always shown (since CF can use them)
+            problemLettersFilterRow.classList.remove('collapsed');
+        }
+    }
+
     // Platform UI Selection Logic (Problems)
     problemPlatformRadios.forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            const platform = e.target.value;
-            let currentFilterType = 'difficulty';
-            for (const r of acFilterTypeRadios) if (r.checked) currentFilterType = r.value;
-
-            if (platform === 'codeforces') {
-                problemHandleCf.classList.remove('hidden');
-                problemHandleAc.classList.add('hidden');
-                problemCfRatingDiv.classList.remove('collapsed');
-                problemAcFilterTypeDiv.classList.add('collapsed');
-                problemAcRatingDiv.classList.add('collapsed');
-                problemAcPointsDiv.classList.add('collapsed');
-                problemHandleCf.placeholder = "CF handle(s) (comma separated)";
-            } else if (platform === 'atcoder') {
-                problemHandleCf.classList.add('hidden');
-                problemHandleAc.classList.remove('hidden');
-                problemCfRatingDiv.classList.add('collapsed');
-                problemAcFilterTypeDiv.classList.remove('collapsed');
-                problemAcRatingDiv.classList.toggle('collapsed', currentFilterType !== 'difficulty');
-                problemAcPointsDiv.classList.toggle('collapsed', currentFilterType !== 'points');
-                problemHandleAc.placeholder = "AtCoder handle(s) (comma separated)";
-            } else if (platform === 'both') {
-                problemHandleCf.classList.remove('hidden');
-                problemHandleAc.classList.remove('hidden');
-                problemCfRatingDiv.classList.remove('collapsed');
-                problemAcFilterTypeDiv.classList.remove('collapsed');
-                problemAcRatingDiv.classList.toggle('collapsed', currentFilterType !== 'difficulty');
-                problemAcPointsDiv.classList.toggle('collapsed', currentFilterType !== 'points');
-                problemHandleCf.placeholder = "CF handle(s) (comma separated)";
-                problemHandleAc.placeholder = "AtCoder handle(s) (comma separated)";
-            }
-        });
+        radio.addEventListener('change', updateProblemFiltersUI);
     });
 
     acFilterTypeRadios.forEach(radio => {
-        radio.addEventListener('change', (e) => {
-            const filterType = e.target.value;
-            if (filterType === 'difficulty') {
-                problemAcRatingDiv.classList.remove('collapsed');
-                problemAcPointsDiv.classList.add('collapsed');
-            } else {
-                problemAcRatingDiv.classList.add('collapsed');
-                problemAcPointsDiv.classList.remove('collapsed');
-            }
-        });
+        radio.addEventListener('change', updateProblemFiltersUI);
     });
 
     // Handle CF Gym collapse
@@ -335,6 +361,43 @@ document.addEventListener('DOMContentLoaded', () => {
             if (cb.checked) selected.add(cb.value);
         });
         return selected;
+    }
+
+    function getSelectedProblemLetters() {
+        const selected = new Set();
+        const checkboxes = problemLettersGroup.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            if (cb.checked) selected.add(cb.value.toLowerCase());
+        });
+        
+        const customVal = problemCustomLetters.value.trim();
+        if (customVal) {
+            customVal.split(',').forEach(val => {
+                const cleaned = val.trim().toLowerCase();
+                if (cleaned) selected.add(cleaned);
+            });
+        }
+        return selected;
+    }
+
+    function getAtCoderProblemIndex(id) {
+        const parts = id.split('_');
+        return parts[parts.length - 1];
+    }
+
+    function matchProblemIndex(index, selectedLetters) {
+        if (selectedLetters.size === 0) return true;
+        const lowerIndex = index.toLowerCase();
+        for (const letter of selectedLetters) {
+            if (lowerIndex === letter) return true;
+            if (lowerIndex.startsWith(letter)) {
+                const rest = lowerIndex.slice(letter.length);
+                if (/^\d+$/.test(rest)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     function formatDuration(seconds) {
@@ -738,6 +801,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const count = parseInt(problemCount.value) || 5;
         const recencyVal = problemRecencyFilter.value;
         const cutoffTime = getCutoffTime(recencyVal);
+        const selectedLetters = getSelectedProblemLetters();
 
         hideError();
         problemsEmptyState.classList.add('hidden');
@@ -751,16 +815,24 @@ document.addEventListener('DOMContentLoaded', () => {
             if (platform === 'codeforces' || platform === 'both') {
                 const cfHandles = cfHandlesStr.split(',').map(h => h.trim()).filter(h => h);
                 if (cfHandles.length > 0) {
+                    const cfDivisions = getSelectedDivisions('problem-cf-division-group');
+                    if (cfDivisions.size === 0) {
+                        throw new Error("Please select at least one Codeforces division.");
+                    }
                     let cfMin = parseInt(cfMinRating.value);
                     cfMin = isNaN(cfMin) ? 800 : Math.max(800, cfMin);
                     const cfMax = parseInt(cfMaxRating.value) || 3500;
-                    await fetchCodeforcesProblemsList(cfHandles, cutoffTime, cfMin, cfMax, platform === 'both' ? Math.ceil(count/2) : count);
+                    await fetchCodeforcesProblemsList(cfHandles, cutoffTime, cfMin, cfMax, platform === 'both' ? Math.ceil(count/2) : count, selectedLetters, cfDivisions);
                 }
             }
             
             if (platform === 'atcoder' || platform === 'both') {
                 const acHandles = acHandlesStr.split(',').map(h => h.trim()).filter(h => h);
                 if (acHandles.length > 0) {
+                    const acDivisions = getSelectedDivisions('problem-ac-division-group');
+                    if (acDivisions.size === 0) {
+                        throw new Error("Please select at least one AtCoder type.");
+                    }
                     let acMinDiff = -Infinity;
                     let acMaxDiff = Infinity;
                     let acMinPts = 0;
@@ -774,14 +846,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         acMinDiff = isNaN(parsedMin) ? -Infinity : parsedMin;
                         let parsedMax = parseFloat(acMaxDifficulty.value);
                         acMaxDiff = isNaN(parsedMax) ? Infinity : parsedMax;
-                    } else {
+                    } else if (filterType === 'points') {
                         let parsedMin = parseFloat(acMinPoints.value);
                         acMinPts = isNaN(parsedMin) ? 0 : parsedMin;
                         let parsedMax = parseFloat(acMaxPoints.value);
                         acMaxPts = isNaN(parsedMax) ? Infinity : parsedMax;
                     }
                     
-                    await fetchAtcoderProblemsList(acHandles, cutoffTime, acMinDiff, acMaxDiff, acMinPts, acMaxPts, platform === 'both' ? Math.floor(count/2) : count);
+                    await fetchAtcoderProblemsList(acHandles, cutoffTime, acMinDiff, acMaxDiff, acMinPts, acMaxPts, platform === 'both' ? Math.floor(count/2) : count, selectedLetters, acDivisions, filterType);
                 }
             }
 
@@ -807,7 +879,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function fetchCodeforcesProblemsList(handles, cutoffTime, minRating, maxRating, limit) {
+    async function fetchCodeforcesProblemsList(handles, cutoffTime, minRating, maxRating, limit, selectedLetters, selectedDivisions) {
         loaderText.textContent = `Fetching Codeforces submissions...`;
         
         const solvedProblemNames = new Set();
@@ -843,16 +915,17 @@ document.addEventListener('DOMContentLoaded', () => {
         
         const problems = psData.result.problems;
         
-        let contestTimeMap = new Map();
-        if (cutoffTime > 0) {
-            loaderText.textContent = `Fetching Codeforces contests...`;
-            await new Promise(r => setTimeout(r, 400));
-            const cRes = await fetch('https://codeforces.com/api/contest.list?gym=false');
-            const cData = await cRes.json();
-            if (cData.status === 'OK') {
-                for (const c of cData.result) {
-                    contestTimeMap.set(c.id, c.startTimeSeconds);
-                }
+        loaderText.textContent = `Fetching Codeforces contests...`;
+        await new Promise(r => setTimeout(r, 400));
+        const cRes = await fetch('https://codeforces.com/api/contest.list?gym=false');
+        const cData = await cRes.json();
+        const contestInfoMap = new Map();
+        if (cData.status === 'OK') {
+            for (const c of cData.result) {
+                contestInfoMap.set(c.id, {
+                    startTime: c.startTimeSeconds,
+                    division: categorizeCFContest(c.name)
+                });
             }
         }
 
@@ -860,10 +933,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!p.rating) return false;
             if (p.rating < minRating || p.rating > maxRating) return false;
             if (solvedProblemNames.has(p.name)) return false;
+            if (!matchProblemIndex(p.index, selectedLetters)) return false;
+            
+            const cInfo = contestInfoMap.get(p.contestId) || { startTime: 0, division: 'other' };
+            if (!selectedDivisions.has(cInfo.division)) return false;
             
             if (cutoffTime > 0) {
-                const startTime = contestTimeMap.get(p.contestId);
-                if (!startTime || startTime < cutoffTime) return false;
+                if (cInfo.startTime === 0 || cInfo.startTime < cutoffTime) return false;
             }
             return true;
         });
@@ -882,7 +958,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function fetchAtcoderProblemsList(handles, cutoffTime, minDiff, maxDiff, minPts, maxPts, limit) {
+    async function fetchAtcoderProblemsList(handles, cutoffTime, minDiff, maxDiff, minPts, maxPts, limit, selectedLetters, selectedDivisions, filterType) {
         const solvedProblemIds = new Set();
         
         for (let i = 0; i < handles.length; i++) {
@@ -929,17 +1005,20 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const model = models[p.id];
             
-            // Check points condition
-            if (minPts > 0 || maxPts < Infinity) {
+            // Check contest divisions
+            const type = categorizeAtCoderContest(p.contest_id);
+            if (!selectedDivisions.has(type)) return false;
+            
+            if (filterType === 'points') {
                 if (p.point === null || p.point === undefined) return false;
                 if (p.point < minPts || p.point > maxPts) return false;
-            }
-            
-            // Check difficulty condition
-            if (minDiff > -Infinity || maxDiff < Infinity) {
+            } else if (filterType === 'difficulty') {
                 if (!model || model.difficulty === undefined) return false;
                 const diff = Math.round(model.difficulty);
                 if (diff < minDiff || diff > maxDiff) return false;
+            } else if (filterType === 'letter') {
+                const taskIndex = getAtCoderProblemIndex(p.id);
+                if (!matchProblemIndex(taskIndex, selectedLetters)) return false;
             }
             
             if (cutoffTime > 0) {

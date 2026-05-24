@@ -136,6 +136,28 @@
                                 max="50" />
                         </div>
 
+                        <div id="problem-division-filters" class="filter-row custom-collapse">
+                            <span class="filter-label" id="problem-division-label">CF Divisions</span>
+
+                            <div class="chip-group" id="problem-cf-division-group">
+                                <label class="chip"><input type="checkbox" value="div1" checked> <span>Div. 1</span></label>
+                                <label class="chip"><input type="checkbox" value="div2" checked> <span>Div. 2</span></label>
+                                <label class="chip"><input type="checkbox" value="div3" checked> <span>Div. 3</span></label>
+                                <label class="chip"><input type="checkbox" value="div4" checked> <span>Div. 4</span></label>
+                                <label class="chip"><input type="checkbox" value="edu" checked> <span>Edu</span></label>
+                                <label class="chip"><input type="checkbox" value="global" checked> <span>Global</span></label>
+                                <label class="chip"><input type="checkbox" value="other" checked> <span>Other</span></label>
+                            </div>
+
+                            <div class="chip-group hidden" id="problem-ac-division-group">
+                                <label class="chip"><input type="checkbox" value="abc" checked> <span>Beginner (ABC)</span></label>
+                                <label class="chip"><input type="checkbox" value="arc" checked> <span>Regular (ARC)</span></label>
+                                <label class="chip"><input type="checkbox" value="agc" checked> <span>Grand (AGC)</span></label>
+                                <label class="chip"><input type="checkbox" value="ahc" checked> <span>Heuristic (AHC)</span></label>
+                                <label class="chip"><input type="checkbox" value="other" checked> <span>Other</span></label>
+                            </div>
+                        </div>
+
                         <div id="problem-cf-rating" class="filter-row custom-collapse">
                             <span class="filter-label">CF Rating Range</span>
                             <div class="range-inputs">
@@ -154,6 +176,8 @@
                                     <span>Difficulty</span></label>
                                 <label class="toggle-btn"><input type="radio" name="ac_filter_type" value="points">
                                     <span>Points</span></label>
+                                <label class="toggle-btn"><input type="radio" name="ac_filter_type" value="letter">
+                                    <span>Letter</span></label>
                             </div>
                         </div>
 
@@ -177,6 +201,21 @@
                                 <input type="number" id="ac-max-points" class="custom-number-input"
                                     placeholder="Max" min="0" step="any" />
                             </div>
+                        </div>
+                        <div id="problem-letters-filter-row" class="filter-row custom-collapse">
+                            <span class="filter-label">Problem Letters</span>
+                            <div class="chip-group" id="problem-letters-group">
+                                <label class="chip"><input type="checkbox" value="a"> <span>A</span></label>
+                                <label class="chip"><input type="checkbox" value="b"> <span>B</span></label>
+                                <label class="chip"><input type="checkbox" value="c"> <span>C</span></label>
+                                <label class="chip"><input type="checkbox" value="d"> <span>D</span></label>
+                                <label class="chip"><input type="checkbox" value="e"> <span>E</span></label>
+                                <label class="chip"><input type="checkbox" value="f"> <span>F</span></label>
+                                <label class="chip"><input type="checkbox" value="g"> <span>G</span></label>
+                                <label class="chip"><input type="checkbox" value="h"> <span>H</span></label>
+                            </div>
+                            <input type="text" id="problem-custom-letters" class="custom-text-input"
+                                placeholder="Or custom index (e.g. Ex, I, J)" autocomplete="off" />
                         </div>
 
                         <div class="filter-row">
