@@ -33,7 +33,14 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const cfDivisionGroup = document.getElementById('cf-division-group');
     const acDivisionGroup = document.getElementById('ac-division-group');
+    const cfDivisionWrapper = document.getElementById('cf-division-wrapper');
+    const acDivisionWrapper = document.getElementById('ac-division-wrapper');
+    const cfHandleWrapper = document.getElementById('cf-handle-wrapper');
+    const acHandleWrapper = document.getElementById('ac-handle-wrapper');
     const recencyFilter = document.getElementById('recency-filter');
+    const contestFilterSubTabs = document.getElementById('contest-filter-sub-tabs');
+    const contestCfFiltersGroup = document.getElementById('contest-cf-filters-group');
+    const contestAcFiltersGroup = document.getElementById('contest-ac-filters-group');
 
     // Tabs
     const tabBtns = document.querySelectorAll('.tab-btn');
@@ -47,6 +54,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const problemPlatformRadios = document.getElementsByName('problem_platform');
     const problemHandleCf = document.getElementById('problem-handle-cf');
     const problemHandleAc = document.getElementById('problem-handle-ac');
+    const problemCfHandleWrapper = document.getElementById('problem-cf-handle-wrapper');
+    const problemAcHandleWrapper = document.getElementById('problem-ac-handle-wrapper');
     const problemCount = document.getElementById('problem-count');
     const cfMinRating = document.getElementById('cf-min-rating');
     const cfMaxRating = document.getElementById('cf-max-rating');
@@ -66,9 +75,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const problemCustomLetters = document.getElementById('problem-custom-letters');
     const problemCfDivisionGroup = document.getElementById('problem-cf-division-group');
     const problemAcDivisionGroup = document.getElementById('problem-ac-division-group');
+    const problemCfDivisionWrapper = document.getElementById('problem-cf-division-wrapper');
+    const problemAcDivisionWrapper = document.getElementById('problem-ac-division-wrapper');
     const problemDivisionFiltersDiv = document.getElementById('problem-division-filters');
     const problemDivisionLabel = document.getElementById('problem-division-label');
     const problemLettersFilterRow = document.getElementById('problem-letters-filter-row');
+    const copyAllProblemsBtn = document.getElementById('copy-all-problems-btn');
+    const problemFilterSubTabs = document.getElementById('problem-filter-sub-tabs');
+    const problemCfFiltersGroup = document.getElementById('problem-cf-filters-group');
+    const problemAcFiltersGroup = document.getElementById('problem-ac-filters-group');
 
     // Filters Toggle
     const toggleFiltersBtn = document.getElementById('toggle-filters-btn');
@@ -143,34 +158,33 @@ document.addEventListener('DOMContentLoaded', () => {
         radio.addEventListener('change', (e) => {
             const platform = e.target.value;
             
-            // Hide all division groups
-            cfDivisionGroup.classList.add('hidden');
-            acDivisionGroup.classList.add('hidden');
-            
-            // Hide CF specific source filter by default
-            cfSourceFilter.classList.add('collapsed');
-            acLangFilter.classList.add('collapsed');
+            // Default reset sub-tabs switcher visibility
+            contestFilterSubTabs.classList.add('hidden');
             
             if (platform === 'codeforces') {
-                cfDivisionGroup.classList.remove('hidden');
-                cfSourceFilter.classList.remove('collapsed');
-                divisionLabel.textContent = "CF Divisions";
-                handleInput.classList.remove('hidden');
-                handleInputAc.classList.add('hidden');
+                contestCfFiltersGroup.classList.remove('hidden');
+                contestAcFiltersGroup.classList.add('hidden');
+                cfHandleWrapper.classList.remove('hidden');
+                acHandleWrapper.classList.add('hidden');
             } else if (platform === 'atcoder') {
-                acDivisionGroup.classList.remove('hidden');
-                acLangFilter.classList.remove('collapsed');
-                divisionLabel.textContent = "AtCoder Types";
-                handleInput.classList.add('hidden');
-                handleInputAc.classList.remove('hidden');
+                contestCfFiltersGroup.classList.add('hidden');
+                contestAcFiltersGroup.classList.remove('hidden');
+                cfHandleWrapper.classList.add('hidden');
+                acHandleWrapper.classList.remove('hidden');
             } else if (platform === 'both') {
-                cfDivisionGroup.classList.remove('hidden');
-                acDivisionGroup.classList.remove('hidden');
-                cfSourceFilter.classList.remove('collapsed');
-                acLangFilter.classList.remove('collapsed');
-                divisionLabel.textContent = "CF Divisions & AtCoder Types";
-                handleInput.classList.remove('hidden');
-                handleInputAc.classList.remove('hidden');
+                contestFilterSubTabs.classList.remove('hidden');
+                cfHandleWrapper.classList.remove('hidden');
+                acHandleWrapper.classList.remove('hidden');
+                
+                // Show current active sub-tab group
+                const activePlatform = contestFilterSubTabs.querySelector('.sub-tab-btn.active').getAttribute('data-platform');
+                if (activePlatform === 'cf') {
+                    contestCfFiltersGroup.classList.remove('hidden');
+                    contestAcFiltersGroup.classList.add('hidden');
+                } else {
+                    contestCfFiltersGroup.classList.add('hidden');
+                    contestAcFiltersGroup.classList.remove('hidden');
+                }
             }
             
             // Trigger profile fetch again if handle is present
@@ -187,60 +201,48 @@ document.addEventListener('DOMContentLoaded', () => {
         let currentFilterType = 'difficulty';
         for (const r of acFilterTypeRadios) if (r.checked) currentFilterType = r.value;
 
-        // Hide all division groups first
-        problemCfDivisionGroup.classList.add('hidden');
-        problemAcDivisionGroup.classList.add('hidden');
-        problemAcLangFilter.classList.add('collapsed');
+        // Default reset sub-tabs switcher visibility
+        problemFilterSubTabs.classList.add('hidden');
 
         if (platform === 'codeforces') {
-            problemHandleCf.classList.remove('hidden');
-            problemHandleAc.classList.add('hidden');
-            problemCfRatingDiv.classList.remove('collapsed');
-            problemAcFilterTypeDiv.classList.add('collapsed');
-            problemAcRatingDiv.classList.add('collapsed');
-            problemAcPointsDiv.classList.add('collapsed');
-            problemHandleCf.placeholder = "CF handle(s) (comma separated)";
-
-            problemDivisionFiltersDiv.classList.remove('collapsed');
-            problemCfDivisionGroup.classList.remove('hidden');
-            problemDivisionLabel.textContent = "CF Divisions";
+            problemCfHandleWrapper.classList.remove('hidden');
+            problemAcHandleWrapper.classList.add('hidden');
+            problemCfFiltersGroup.classList.remove('hidden');
+            problemAcFiltersGroup.classList.add('hidden');
 
             // Letters are always shown/active for CF
             problemLettersFilterRow.classList.remove('collapsed');
         } else if (platform === 'atcoder') {
-            problemHandleCf.classList.add('hidden');
-            problemHandleAc.classList.remove('hidden');
-            problemCfRatingDiv.classList.add('collapsed');
-            problemAcFilterTypeDiv.classList.remove('collapsed');
-            problemAcLangFilter.classList.remove('collapsed');
+            problemCfHandleWrapper.classList.add('hidden');
+            problemAcHandleWrapper.classList.remove('hidden');
+            problemCfFiltersGroup.classList.add('hidden');
+            problemAcFiltersGroup.classList.remove('hidden');
+            
+            // Toggle difficulty or points collapses
             problemAcRatingDiv.classList.toggle('collapsed', currentFilterType !== 'difficulty');
             problemAcPointsDiv.classList.toggle('collapsed', currentFilterType !== 'points');
-            problemHandleAc.placeholder = "AtCoder handle(s) (comma separated)";
-
-            problemDivisionFiltersDiv.classList.remove('collapsed');
-            problemAcDivisionGroup.classList.remove('hidden');
-            problemDivisionLabel.textContent = "AtCoder Types";
 
             // Letters are only shown if AtCoder filter type is 'letter'
             problemLettersFilterRow.classList.toggle('collapsed', currentFilterType !== 'letter');
         } else if (platform === 'both') {
-            problemHandleCf.classList.remove('hidden');
-            problemHandleAc.classList.remove('hidden');
-            problemCfRatingDiv.classList.remove('collapsed');
-            problemAcFilterTypeDiv.classList.remove('collapsed');
-            problemAcLangFilter.classList.remove('collapsed');
+            problemFilterSubTabs.classList.remove('hidden');
+            problemCfHandleWrapper.classList.remove('hidden');
+            problemAcHandleWrapper.classList.remove('hidden');
+            
+            // Toggle difficulty or points collapses
             problemAcRatingDiv.classList.toggle('collapsed', currentFilterType !== 'difficulty');
             problemAcPointsDiv.classList.toggle('collapsed', currentFilterType !== 'points');
-            problemHandleCf.placeholder = "CF handle(s) (comma separated)";
-            problemHandleAc.placeholder = "AtCoder handle(s) (comma separated)";
 
-            problemDivisionFiltersDiv.classList.remove('collapsed');
-            problemCfDivisionGroup.classList.remove('hidden');
-            problemAcDivisionGroup.classList.remove('hidden');
-            problemDivisionLabel.textContent = "CF Divisions & AtCoder Types";
-
-            // Letters are always shown (since CF can use them)
-            problemLettersFilterRow.classList.remove('collapsed');
+            const activePlatform = problemFilterSubTabs.querySelector('.sub-tab-btn.active').getAttribute('data-platform');
+            if (activePlatform === 'cf') {
+                problemCfFiltersGroup.classList.remove('hidden');
+                problemAcFiltersGroup.classList.add('hidden');
+                problemLettersFilterRow.classList.remove('collapsed');
+            } else {
+                problemCfFiltersGroup.classList.add('hidden');
+                problemAcFiltersGroup.classList.remove('hidden');
+                problemLettersFilterRow.classList.toggle('collapsed', currentFilterType !== 'letter');
+            }
         }
     }
 
@@ -258,9 +260,9 @@ document.addEventListener('DOMContentLoaded', () => {
         radio.addEventListener('change', (e) => {
             const platform = getSelectedPlatform();
             if (platform === 'codeforces' && e.target.value === 'gym') {
-                divisionFiltersDiv.classList.add('collapsed');
+                cfDivisionWrapper.classList.add('hidden');
             } else if (platform === 'codeforces') {
-                divisionFiltersDiv.classList.remove('collapsed');
+                cfDivisionWrapper.classList.remove('hidden');
             }
         });
     });
@@ -272,23 +274,155 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.key === 'Enter') handleGetContest();
     });
     handleInput.addEventListener('blur', fetchUserProfiles);
+    handleInput.addEventListener('change', () => {
+        localStorage.setItem('cf_handles', handleInput.value.trim());
+    });
 
     handleInputAc.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleGetContest();
     });
     handleInputAc.addEventListener('blur', fetchUserProfiles);
+    handleInputAc.addEventListener('change', () => {
+        localStorage.setItem('ac_handles', handleInputAc.value.trim());
+    });
 
     problemHandleCf.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleGetProblems();
     });
+    problemHandleCf.addEventListener('change', () => {
+        localStorage.setItem('prob_cf_handles', problemHandleCf.value.trim());
+    });
     problemHandleAc.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') handleGetProblems();
+    });
+    problemHandleAc.addEventListener('change', () => {
+        localStorage.setItem('prob_ac_handles', problemHandleAc.value.trim());
     });
 
     clearHistoryBtn.addEventListener('click', () => {
         contestHistory = [];
         renderHistory();
     });
+
+    // Bulk Select / Clear Actions
+    document.querySelectorAll('.bulk-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const targetId = btn.getAttribute('data-target');
+            const isSelectAll = btn.classList.contains('select-all');
+            const checkboxes = document.getElementById(targetId).querySelectorAll('input[type="checkbox"]');
+            checkboxes.forEach(cb => {
+                cb.checked = isSelectAll;
+            });
+        });
+    });
+
+    // Sub-tab switching logic for filter drawers
+    document.querySelectorAll('.filter-sub-tabs .sub-tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const wrapper = btn.closest('.filters-section-wrapper');
+            const isContest = wrapper.id === 'contest-filters-wrapper';
+            const subTabsContainer = btn.parentElement;
+            
+            subTabsContainer.querySelectorAll('.sub-tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            
+            const selectedPlatform = btn.getAttribute('data-platform');
+            if (isContest) {
+                if (selectedPlatform === 'cf') {
+                    contestCfFiltersGroup.classList.remove('hidden');
+                    contestAcFiltersGroup.classList.add('hidden');
+                } else {
+                    contestCfFiltersGroup.classList.add('hidden');
+                    contestAcFiltersGroup.classList.remove('hidden');
+                }
+            } else {
+                if (selectedPlatform === 'cf') {
+                    problemCfFiltersGroup.classList.remove('hidden');
+                    problemAcFiltersGroup.classList.add('hidden');
+                    problemLettersFilterRow.classList.remove('collapsed');
+                } else {
+                    problemCfFiltersGroup.classList.add('hidden');
+                    problemAcFiltersGroup.classList.remove('hidden');
+                    let currentFilterType = 'difficulty';
+                    for (const r of acFilterTypeRadios) if (r.checked) currentFilterType = r.value;
+                    problemLettersFilterRow.classList.toggle('collapsed', currentFilterType !== 'letter');
+                }
+            }
+        });
+    });
+
+
+
+    // Copy Contest Details to Clipboard
+    const copyContestBtn = document.getElementById('copy-contest-btn');
+    if (copyContestBtn) {
+        copyContestBtn.addEventListener('click', () => {
+            const name = contestNameEl.textContent;
+            const badge = resultBadge.textContent;
+            const type = typeBadge.textContent;
+            const duration = durationBadge.textContent;
+            const link = virtualLinkEl.href;
+            
+            const textToCopy = `🏆 **${name}**\n- Platform: ${type} (${badge})\n- Duration: ${duration}\n- Link: ${link}`;
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const originalHTML = copyContestBtn.innerHTML;
+                copyContestBtn.innerHTML = `
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Copied!</span>
+                `;
+                setTimeout(() => {
+                    copyContestBtn.innerHTML = originalHTML;
+                }, 2000);
+            });
+        });
+    }
+
+    // Copy All Fetched Problems to Clipboard
+    if (copyAllProblemsBtn) {
+        copyAllProblemsBtn.addEventListener('click', () => {
+            if (fetchedProblemsList.length === 0) return;
+            let textToCopy = "🧩 **SkillSync Fetched Problems**\n\n";
+            fetchedProblemsList.forEach((p, idx) => {
+                const ratingText = p.displayRating || p.rating || 'N/A';
+                textToCopy += `${idx + 1}. [${p.name}](${p.link}) [${p.platform.toUpperCase()} Rating: ${ratingText}]\n`;
+            });
+            
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                const originalHTML = copyAllProblemsBtn.innerHTML;
+                copyAllProblemsBtn.innerHTML = `
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                    <span>Copied!</span>
+                `;
+                setTimeout(() => {
+                    copyAllProblemsBtn.innerHTML = originalHTML;
+                }, 2000);
+            });
+        });
+    }
+
+    // Load handles from localStorage on start
+    function loadCachedHandles() {
+        const cachedCf = localStorage.getItem('cf_handles');
+        const cachedAc = localStorage.getItem('ac_handles');
+        const cachedProbCf = localStorage.getItem('prob_cf_handles');
+        const cachedProbAc = localStorage.getItem('prob_ac_handles');
+        
+        if (cachedCf) handleInput.value = cachedCf;
+        if (cachedAc) handleInputAc.value = cachedAc;
+        if (cachedProbCf) problemHandleCf.value = cachedProbCf;
+        if (cachedProbAc) problemHandleAc.value = cachedProbAc;
+        
+        if (cachedCf || cachedAc) {
+            fetchUserProfiles();
+        }
+    }
+    
+    // Call loadCachedHandles on startup
+    loadCachedHandles();
 
     async function fetchUserProfiles() {
         const platform = getSelectedPlatform();
@@ -746,6 +880,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!res.ok || !resContentType || !resContentType.includes("application/json")) {
             throw new Error("Failed to fetch AtCoder contests from Kenkoooo.");
         }
+        const allContests = await res.json();
         const acEnglishOnly = document.getElementById('contest-ac-english-only').checked;
 
         const validContests = allContests.filter(c => {
@@ -875,6 +1010,7 @@ document.addEventListener('DOMContentLoaded', () => {
         hideError();
         problemsEmptyState.classList.add('hidden');
         problemsGrid.innerHTML = '';
+        copyAllProblemsBtn.classList.add('hidden');
         loader.classList.remove('hidden');
         getProblemsBtn.disabled = true;
 
@@ -939,9 +1075,11 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             renderProblems(fetchedProblemsList);
+            copyAllProblemsBtn.classList.remove('hidden');
         } catch (err) {
             showError(err.message || "An unexpected error occurred.");
             problemsEmptyState.classList.remove('hidden');
+            copyAllProblemsBtn.classList.add('hidden');
         } finally {
             loader.classList.add('hidden');
             getProblemsBtn.disabled = false;
