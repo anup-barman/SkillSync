@@ -7,7 +7,7 @@
     <title>SkillSync</title>
     <meta name="description" content="Generate a random unsolved Codeforces/AtCoder contest for your handles">
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
 </head>
 
@@ -19,22 +19,21 @@
                 <img src="favicon.svg" alt="SkillSync Logo" class="logo-img">
                 <h1>SkillSync</h1>
             </div>
-            <p class="subtitle">Find your next unsolved competitive programming challenge</p>
         </header>
 
         <!-- Horizontal Control Panel -->
-        <section class="control-panel glass-panel">
+        <section class="control-panel panel">
             <div class="control-header">
                 <div class="tabs-container">
                     <button class="tab-btn active" data-tab="contest">Contest</button>
                     <button class="tab-btn" data-tab="problem">Problems</button>
                 </div>
                 <!-- Filters Toggle Button -->
-                <button id="toggle-filters-btn" class="filters-toggle-btn">
+                <button id="toggle-filters-btn" class="filters-toggle-btn btn-icon">
                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
                     </svg>
-                    <span>Filters</span>
+                    <span>Filter</span>
                 </button>
             </div>
 
@@ -80,98 +79,98 @@
 
                 <!-- Collapsible Filters Drawer -->
                 <div class="filters-section-wrapper collapsed" id="contest-filters-wrapper">
-                    <div class="filter-sub-tabs hidden" id="contest-filter-sub-tabs">
-                        <button type="button" class="sub-tab-btn active" data-platform="cf">Codeforces Filters</button>
-                        <button type="button" class="sub-tab-btn" data-platform="ac">AtCoder Filters</button>
-                    </div>
+                    <div class="filters-inner">
+                        <div class="filter-sub-tabs hidden" id="contest-filter-sub-tabs">
+                            <button type="button" class="sub-tab-btn active" data-platform="cf">Codeforces Filters</button>
+                            <button type="button" class="sub-tab-btn" data-platform="ac">AtCoder Filters</button>
+                        </div>
 
-                    <div class="filters-section">
-                        <!-- Codeforces Filters Group -->
-                        <div class="platform-filters-group" id="contest-cf-filters-group">
-                            <div id="cf-source-filter" class="filter-row custom-collapse narrow-filter">
-                                <div class="filter-header-row">
-                                    <span class="filter-label">CF Source</span>
-                                </div>
-                                <div class="toggle-group" id="source-group">
-                                    <label class="toggle-btn"><input type="radio" name="source" value="normal" checked>
-                                        <span>Normal</span></label>
-                                    <label class="toggle-btn"><input type="radio" name="source" value="gym">
-                                        <span>Gym</span></label>
-                                    <label class="toggle-btn"><input type="radio" name="source" value="both">
-                                        <span>Both</span></label>
-                                </div>
-                            </div>
-
-                            <div class="filter-row wide-filter division-group-wrapper" id="cf-division-wrapper">
-                                <div class="filter-header-row">
-                                    <span class="filter-label">CF Divisions</span>
-                                    <div class="bulk-select-actions">
-                                        <button type="button" class="bulk-btn select-all" data-target="cf-division-group">All</button>
-                                        <button type="button" class="bulk-btn clear-all" data-target="cf-division-group">None</button>
+                        <div class="filters-section">
+                            <!-- Codeforces Filters Group -->
+                            <div class="platform-filters-group" id="contest-cf-filters-group">
+                                <div id="cf-source-filter" class="filter-row custom-collapse">
+                                    <div class="filter-header-row">
+                                        <span class="filter-label">Contest source</span>
+                                    </div>
+                                    <div class="toggle-group" id="source-group">
+                                        <label class="toggle-btn"><input type="radio" name="source" value="normal" checked>
+                                            <span>Official</span></label>
+                                        <label class="toggle-btn"><input type="radio" name="source" value="gym">
+                                            <span>Gym</span></label>
+                                        <label class="toggle-btn"><input type="radio" name="source" value="both">
+                                            <span>Both</span></label>
                                     </div>
                                 </div>
-                                <div class="chip-group" id="cf-division-group">
-                                    <label class="chip"><input type="checkbox" value="div1" checked> <span>Div. 1</span></label>
-                                    <label class="chip"><input type="checkbox" value="div2" checked> <span>Div. 2</span></label>
-                                    <label class="chip"><input type="checkbox" value="div3" checked> <span>Div. 3</span></label>
-                                    <label class="chip"><input type="checkbox" value="div4" checked> <span>Div. 4</span></label>
-                                    <label class="chip"><input type="checkbox" value="edu" checked> <span>Edu</span></label>
-                                    <label class="chip"><input type="checkbox" value="global" checked> <span>Global</span></label>
-                                    <label class="chip"><input type="checkbox" value="other" checked> <span>Other</span></label>
-                                </div>
-                            </div>
-                        </div>
 
-                        <!-- AtCoder Filters Group -->
-                        <div class="platform-filters-group hidden" id="contest-ac-filters-group">
-                            <div id="ac-language-filter" class="filter-row custom-collapse narrow-filter">
-                                <div class="filter-header-row">
-                                    <span class="filter-label">AtCoder Language</span>
-                                </div>
-                                <div class="chip-group">
-                                    <label class="chip"><input type="checkbox" id="contest-ac-english-only" checked> <span>English Only 🌐</span></label>
-                                </div>
-                            </div>
-
-                            <div class="filter-row wide-filter division-group-wrapper" id="ac-division-wrapper">
-                                <div class="filter-header-row">
-                                    <span class="filter-label">AtCoder Types</span>
-                                    <div class="bulk-select-actions">
-                                        <button type="button" class="bulk-btn select-all" data-target="ac-division-group">All</button>
-                                        <button type="button" class="bulk-btn clear-all" data-target="ac-division-group">None</button>
+                                <div class="filter-row division-group-wrapper" id="cf-division-wrapper">
+                                    <div class="filter-header-row">
+                                        <span class="filter-label">Codeforces contest types</span>
+                                        <div class="bulk-select-actions">
+                                            <button type="button" class="bulk-btn select-all" data-target="cf-division-group">All</button>
+                                            <button type="button" class="bulk-btn clear-all" data-target="cf-division-group">None</button>
+                                        </div>
+                                    </div>
+                                    <div class="chip-group" id="cf-division-group">
+                                        <label class="chip"><input type="checkbox" value="div1" checked> <span>Div. 1</span></label>
+                                        <label class="chip"><input type="checkbox" value="div2" checked> <span>Div. 2</span></label>
+                                        <label class="chip"><input type="checkbox" value="div3" checked> <span>Div. 3</span></label>
+                                        <label class="chip"><input type="checkbox" value="div4" checked> <span>Div. 4</span></label>
+                                        <label class="chip"><input type="checkbox" value="edu" checked> <span>Edu</span></label>
+                                        <label class="chip"><input type="checkbox" value="global" checked> <span>Global</span></label>
+                                        <label class="chip"><input type="checkbox" value="other" checked> <span>Other</span></label>
                                     </div>
                                 </div>
-                                <div class="chip-group" id="ac-division-group">
-                                    <label class="chip"><input type="checkbox" value="abc" checked> <span>Beginner (ABC)</span></label>
-                                    <label class="chip"><input type="checkbox" value="arc" checked> <span>Regular (ARC)</span></label>
-                                    <label class="chip"><input type="checkbox" value="agc" checked> <span>Grand (AGC)</span></label>
-                                    <label class="chip"><input type="checkbox" value="ahc" checked> <span>Heuristic (AHC)</span></label>
-                                    <label class="chip"><input type="checkbox" value="awc" checked> <span>Weekday (AWC)</span></label>
-                                    <label class="chip"><input type="checkbox" value="other" checked> <span>Other</span></label>
-                                </div>
                             </div>
-                        </div>
 
-                        <!-- Shared Filters Group -->
-                        <div class="platform-filters-group shared-group">
-                            <div class="filter-row narrow-filter">
-                                <div class="filter-header-row">
-                                    <span class="filter-label">Recency</span>
+                            <!-- AtCoder Filters Group -->
+                            <div class="platform-filters-group hidden" id="contest-ac-filters-group">
+                                <div id="ac-language-filter" class="filter-row custom-collapse">
+                                    <div class="filter-header-row">
+                                        <span class="filter-label">AtCoder Language</span>
+                                    </div>
+                                    <div class="chip-group">
+                                        <label class="chip"><input type="checkbox" id="contest-ac-english-only" checked> <span>English Only</span></label>
+                                    </div>
                                 </div>
-                                <select id="recency-filter" class="custom-select">
-                                    <option value="all">Any Time</option>
-                                    <option value="0.5">Past 6 Months</option>
-                                    <option value="1">Past 1 Year</option>
-                                    <option value="2">Past 2 Years</option>
-                                    <option value="3">Past 3 Years</option>
-                                    <option value="5">Past 5 Years</option>
-                                    <option value="7">Past 7 Years</option>
-                                    <option value="10">Past 10 Years</option>
-                                </select>
+
+                                <div class="filter-row division-group-wrapper" id="ac-division-wrapper">
+                                    <div class="filter-header-row">
+                                        <span class="filter-label">AtCoder contest types</span>
+                                        <div class="bulk-select-actions">
+                                            <button type="button" class="bulk-btn select-all" data-target="ac-division-group">All</button>
+                                            <button type="button" class="bulk-btn clear-all" data-target="ac-division-group">None</button>
+                                        </div>
+                                    </div>
+                                    <div class="chip-group" id="ac-division-group">
+                                        <label class="chip"><input type="checkbox" value="abc" checked> <span>Beginner (ABC)</span></label>
+                                        <label class="chip"><input type="checkbox" value="arc" checked> <span>Regular (ARC)</span></label>
+                                        <label class="chip"><input type="checkbox" value="agc" checked> <span>Grand (AGC)</span></label>
+                                        <label class="chip"><input type="checkbox" value="ahc" checked> <span>Heuristic (AHC)</span></label>
+                                        <label class="chip"><input type="checkbox" value="awc" checked> <span>Weekday (AWC)</span></label>
+                                        <label class="chip"><input type="checkbox" value="other" checked> <span>Other</span></label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Shared Filters Group -->
+                            <div class="platform-filters-group shared-group">
+                                <div class="filter-row">
+                                    <div class="filter-header-row">
+                                        <span class="filter-label">Contest date</span>
+                                    </div>
+                                    <select id="recency-filter" class="custom-select">
+                                        <option value="all">Any Time</option>
+                                        <option value="0.5">Past 6 Months</option>
+                                        <option value="1">Past 1 Year</option>
+                                        <option value="2">Past 2 Years</option>
+                                        <option value="3">Past 3 Years</option>
+                                        <option value="5">Past 5 Years</option>
+                                        <option value="7">Past 7 Years</option>
+                                        <option value="10">Past 10 Years</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                </div>
                     </div>
                 </div>
             </div>
@@ -214,192 +213,192 @@
 
                 <!-- Collapsible Filters Drawer for Problems -->
                 <div class="filters-section-wrapper collapsed" id="problem-filters-wrapper">
-                    <div class="filter-sub-tabs hidden" id="problem-filter-sub-tabs">
-                        <button type="button" class="sub-tab-btn active" data-platform="cf">Codeforces Filters</button>
-                        <button type="button" class="sub-tab-btn" data-platform="ac">AtCoder Filters</button>
-                    </div>
+                    <div class="filters-inner">
+                        <div class="filter-sub-tabs hidden" id="problem-filter-sub-tabs">
+                            <button type="button" class="sub-tab-btn active" data-platform="cf">Codeforces Filters</button>
+                            <button type="button" class="sub-tab-btn" data-platform="ac">AtCoder Filters</button>
+                        </div>
 
-                    <div class="filters-section">
-                        <!-- Codeforces Filters Group -->
-                        <div class="platform-filters-group" id="problem-cf-filters-group">
-                            <div id="problem-cf-filter-type" class="filter-row custom-collapse narrow-filter">
-                                <div class="filter-header-row">
-                                    <span class="filter-label">CF Filter</span>
+                        <div class="filters-section">
+                            <!-- Codeforces Filters Group -->
+                            <div class="platform-filters-group" id="problem-cf-filters-group">
+                                <div id="problem-cf-filter-type" class="filter-row custom-collapse">
+                                    <div class="filter-header-row">
+                                        <span class="filter-label">Choose by</span>
+                                    </div>
+                                    <div class="toggle-group">
+                                        <label class="toggle-btn"><input type="radio" name="cf_filter_type" value="rating" checked>
+                                            <span>Rating</span></label>
+                                        <label class="toggle-btn"><input type="radio" name="cf_filter_type" value="letter">
+                                            <span>Letter</span></label>
+                                    </div>
                                 </div>
-                                <div class="toggle-group">
-                                    <label class="toggle-btn"><input type="radio" name="cf_filter_type" value="rating" checked>
-                                        <span>Rating</span></label>
-                                    <label class="toggle-btn"><input type="radio" name="cf_filter_type" value="letter">
-                                        <span>Letter</span></label>
+
+                                <div id="problem-cf-rating" class="filter-row custom-collapse">
+                                    <div class="filter-header-row">
+                                        <span class="filter-label">Codeforces rating range</span>
+                                    </div>
+                                    <div class="range-inputs">
+                                        <input type="number" id="cf-min-rating" class="custom-number-input" placeholder="Min" min="800" step="100" />
+                                        <span class="range-separator">-</span>
+                                        <input type="number" id="cf-max-rating" class="custom-number-input" placeholder="Max" min="800" step="100" />
+                                    </div>
+                                </div>
+
+                                <div id="problem-cf-letters-row" class="filter-row custom-collapse collapsed">
+                                    <div class="filter-header-row">
+                                        <span class="filter-label">Problem Letters</span>
+                                    </div>
+                                    <div class="letters-filter-container">
+                                        <div class="chip-group" id="problem-cf-letters-group">
+                                            <label class="chip"><input type="checkbox" value="a"> <span>A</span></label>
+                                            <label class="chip"><input type="checkbox" value="b"> <span>B</span></label>
+                                            <label class="chip"><input type="checkbox" value="c"> <span>C</span></label>
+                                            <label class="chip"><input type="checkbox" value="d"> <span>D</span></label>
+                                            <label class="chip"><input type="checkbox" value="e"> <span>E</span></label>
+                                            <label class="chip"><input type="checkbox" value="f"> <span>F</span></label>
+                                            <label class="chip"><input type="checkbox" value="g"> <span>G</span></label>
+                                            <label class="chip"><input type="checkbox" value="h"> <span>H</span></label>
+                                        </div>
+                                        <div class="custom-index-wrapper">
+                                            <input type="text" id="problem-cf-custom-letters" class="custom-text-input" placeholder="Or custom (e.g. Ex, I, J)" autocomplete="off" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="filter-row division-group-wrapper" id="problem-cf-division-wrapper">
+                                    <div class="filter-header-row">
+                                        <span class="filter-label">Codeforces contest types</span>
+                                        <div class="bulk-select-actions">
+                                            <button type="button" class="bulk-btn select-all" data-target="problem-cf-division-group">All</button>
+                                            <button type="button" class="bulk-btn clear-all" data-target="problem-cf-division-group">None</button>
+                                        </div>
+                                    </div>
+                                    <div class="chip-group" id="problem-cf-division-group">
+                                        <label class="chip"><input type="checkbox" value="div1" checked> <span>Div. 1</span></label>
+                                        <label class="chip"><input type="checkbox" value="div2" checked> <span>Div. 2</span></label>
+                                        <label class="chip"><input type="checkbox" value="div3" checked> <span>Div. 3</span></label>
+                                        <label class="chip"><input type="checkbox" value="div4" checked> <span>Div. 4</span></label>
+                                        <label class="chip"><input type="checkbox" value="edu" checked> <span>Edu</span></label>
+                                        <label class="chip"><input type="checkbox" value="global" checked> <span>Global</span></label>
+                                        <label class="chip"><input type="checkbox" value="other" checked> <span>Other</span></label>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div id="problem-cf-rating" class="filter-row custom-collapse narrow-filter">
-                                <div class="filter-header-row">
-                                    <span class="filter-label">CF Rating Range</span>
+                            <!-- AtCoder Filters Group -->
+                            <div class="platform-filters-group hidden" id="problem-ac-filters-group">
+                                <div id="problem-ac-filter-type" class="filter-row custom-collapse">
+                                    <div class="filter-header-row">
+                                        <span class="filter-label">Choose by</span>
+                                    </div>
+                                    <div class="toggle-group">
+                                        <label class="toggle-btn"><input type="radio" name="ac_filter_type" value="difficulty" checked>
+                                            <span>Difficulty</span></label>
+                                        <label class="toggle-btn"><input type="radio" name="ac_filter_type" value="points">
+                                            <span>Points</span></label>
+                                        <label class="toggle-btn"><input type="radio" name="ac_filter_type" value="letter">
+                                            <span>Letter</span></label>
+                                    </div>
                                 </div>
-                                <div class="range-inputs">
-                                    <input type="number" id="cf-min-rating" class="custom-number-input" placeholder="Min" min="800" step="100" />
-                                    <span class="range-separator">-</span>
-                                    <input type="number" id="cf-max-rating" class="custom-number-input" placeholder="Max" min="800" step="100" />
+
+                                <div id="problem-ac-rating" class="filter-row custom-collapse">
+                                    <div class="filter-header-row">
+                                        <span class="filter-label">AtCoder Difficulty</span>
+                                    </div>
+                                    <div class="range-inputs">
+                                        <input type="number" id="ac-min-difficulty" class="custom-number-input" placeholder="Min" min="0" />
+                                        <span class="range-separator">-</span>
+                                        <input type="number" id="ac-max-difficulty" class="custom-number-input" placeholder="Max" min="0" />
+                                    </div>
+                                </div>
+
+                                <div id="problem-ac-points" class="filter-row custom-collapse collapsed">
+                                    <div class="filter-header-row">
+                                        <span class="filter-label">AtCoder Points</span>
+                                    </div>
+                                    <div class="range-inputs">
+                                        <input type="number" id="ac-min-points" class="custom-number-input" placeholder="Min" min="0" step="any" />
+                                        <span class="range-separator">-</span>
+                                        <input type="number" id="ac-max-points" class="custom-number-input" placeholder="Max" min="0" step="any" />
+                                    </div>
+                                </div>
+
+                                <div id="problem-ac-letters-row" class="filter-row custom-collapse collapsed">
+                                    <div class="filter-header-row">
+                                        <span class="filter-label">Problem Letters</span>
+                                    </div>
+                                    <div class="letters-filter-container">
+                                        <div class="chip-group" id="problem-ac-letters-group">
+                                            <label class="chip"><input type="checkbox" value="a"> <span>A</span></label>
+                                            <label class="chip"><input type="checkbox" value="b"> <span>B</span></label>
+                                            <label class="chip"><input type="checkbox" value="c"> <span>C</span></label>
+                                            <label class="chip"><input type="checkbox" value="d"> <span>D</span></label>
+                                            <label class="chip"><input type="checkbox" value="e"> <span>E</span></label>
+                                            <label class="chip"><input type="checkbox" value="f"> <span>F</span></label>
+                                            <label class="chip"><input type="checkbox" value="g"> <span>G</span></label>
+                                            <label class="chip"><input type="checkbox" value="h"> <span>H</span></label>
+                                        </div>
+                                        <div class="custom-index-wrapper">
+                                            <input type="text" id="problem-ac-custom-letters" class="custom-text-input" placeholder="Or custom (e.g. Ex, I, J)" autocomplete="off" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="filter-row division-group-wrapper" id="problem-ac-division-wrapper">
+                                    <div class="filter-header-row">
+                                        <span class="filter-label">AtCoder Types</span>
+                                        <div class="bulk-select-actions">
+                                            <button type="button" class="bulk-btn select-all" data-target="problem-ac-division-group">All</button>
+                                            <button type="button" class="bulk-btn clear-all" data-target="problem-ac-division-group">None</button>
+                                        </div>
+                                    </div>
+                                    <div class="chip-group" id="problem-ac-division-group">
+                                        <label class="chip"><input type="checkbox" value="abc" checked> <span>Beginner (ABC)</span></label>
+                                        <label class="chip"><input type="checkbox" value="arc" checked> <span>Regular (ARC)</span></label>
+                                        <label class="chip"><input type="checkbox" value="agc" checked> <span>Grand (AGC)</span></label>
+                                        <label class="chip"><input type="checkbox" value="ahc" checked> <span>Heuristic (AHC)</span></label>
+                                        <label class="chip"><input type="checkbox" value="awc" checked> <span>Weekday (AWC)</span></label>
+                                        <label class="chip"><input type="checkbox" value="other" checked> <span>Other</span></label>
+                                    </div>
+                                </div>
+
+                                <div id="problem-ac-language-filter" class="filter-row custom-collapse">
+                                    <div class="filter-header-row">
+                                        <span class="filter-label">AtCoder Language</span>
+                                    </div>
+                                    <div class="chip-group">
+                                        <label class="chip"><input type="checkbox" id="problem-ac-english-only" checked> <span>English Only</span></label>
+                                    </div>
                                 </div>
                             </div>
 
-                            <div id="problem-cf-letters-row" class="filter-row custom-collapse collapsed wide-filter">
-                                <div class="filter-header-row">
-                                    <span class="filter-label">Problem Letters</span>
-                                </div>
-                                <div class="letters-filter-container">
-                                    <div class="chip-group" id="problem-cf-letters-group">
-                                        <label class="chip"><input type="checkbox" value="a"> <span>A</span></label>
-                                        <label class="chip"><input type="checkbox" value="b"> <span>B</span></label>
-                                        <label class="chip"><input type="checkbox" value="c"> <span>C</span></label>
-                                        <label class="chip"><input type="checkbox" value="d"> <span>D</span></label>
-                                        <label class="chip"><input type="checkbox" value="e"> <span>E</span></label>
-                                        <label class="chip"><input type="checkbox" value="f"> <span>F</span></label>
-                                        <label class="chip"><input type="checkbox" value="g"> <span>G</span></label>
-                                        <label class="chip"><input type="checkbox" value="h"> <span>H</span></label>
+                            <!-- Shared Filters Group -->
+                            <div class="platform-filters-group shared-group">
+                                <div class="filter-row">
+                                    <div class="filter-header-row">
+                                        <span class="filter-label">Problems Count</span>
                                     </div>
-                                    <div class="custom-index-wrapper">
-                                        <input type="text" id="problem-cf-custom-letters" class="custom-text-input" placeholder="Or custom (e.g. Ex, I, J)" autocomplete="off" />
-                                    </div>
+                                    <input type="number" id="problem-count" class="custom-number-input" value="5" min="1" max="50" />
                                 </div>
-                            </div>
 
-                            <div class="filter-row wide-filter division-group-wrapper" id="problem-cf-division-wrapper">
-                                <div class="filter-header-row">
-                                    <span class="filter-label">CF Divisions</span>
-                                    <div class="bulk-select-actions">
-                                        <button type="button" class="bulk-btn select-all" data-target="problem-cf-division-group">All</button>
-                                        <button type="button" class="bulk-btn clear-all" data-target="problem-cf-division-group">None</button>
+                                <div class="filter-row">
+                                    <div class="filter-header-row">
+                                        <span class="filter-label">Problem date</span>
                                     </div>
-                                </div>
-                                <div class="chip-group" id="problem-cf-division-group">
-                                    <label class="chip"><input type="checkbox" value="div1" checked> <span>Div. 1</span></label>
-                                    <label class="chip"><input type="checkbox" value="div2" checked> <span>Div. 2</span></label>
-                                    <label class="chip"><input type="checkbox" value="div3" checked> <span>Div. 3</span></label>
-                                    <label class="chip"><input type="checkbox" value="div4" checked> <span>Div. 4</span></label>
-                                    <label class="chip"><input type="checkbox" value="edu" checked> <span>Edu</span></label>
-                                    <label class="chip"><input type="checkbox" value="global" checked> <span>Global</span></label>
-                                    <label class="chip"><input type="checkbox" value="other" checked> <span>Other</span></label>
+                                    <select id="problem-recency-filter" class="custom-select">
+                                        <option value="all">Any Time</option>
+                                        <option value="0.5">Past 6 Months</option>
+                                        <option value="1">Past 1 Year</option>
+                                        <option value="2">Past 2 Years</option>
+                                        <option value="3">Past 3 Years</option>
+                                        <option value="5">Past 5 Years</option>
+                                        <option value="7">Past 7 Years</option>
+                                        <option value="10">Past 10 Years</option>
+                                    </select>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- AtCoder Filters Group -->
-                        <div class="platform-filters-group hidden" id="problem-ac-filters-group">
-                            <div id="problem-ac-filter-type" class="filter-row custom-collapse narrow-filter">
-                                <div class="filter-header-row">
-                                    <span class="filter-label">AtCoder Filter</span>
-                                </div>
-                                <div class="toggle-group">
-                                    <label class="toggle-btn"><input type="radio" name="ac_filter_type" value="difficulty" checked>
-                                        <span>Difficulty</span></label>
-                                    <label class="toggle-btn"><input type="radio" name="ac_filter_type" value="points">
-                                        <span>Points</span></label>
-                                    <label class="toggle-btn"><input type="radio" name="ac_filter_type" value="letter">
-                                        <span>Letter</span></label>
-                                </div>
-                            </div>
-
-                            <div id="problem-ac-rating" class="filter-row custom-collapse narrow-filter">
-                                <div class="filter-header-row">
-                                    <span class="filter-label">AtCoder Difficulty</span>
-                                </div>
-                                <div class="range-inputs">
-                                    <input type="number" id="ac-min-difficulty" class="custom-number-input" placeholder="Min" min="0" />
-                                    <span class="range-separator">-</span>
-                                    <input type="number" id="ac-max-difficulty" class="custom-number-input" placeholder="Max" min="0" />
-                                </div>
-                            </div>
-
-                            <div id="problem-ac-points" class="filter-row custom-collapse collapsed narrow-filter">
-                                <div class="filter-header-row">
-                                    <span class="filter-label">AtCoder Points</span>
-                                </div>
-                                <div class="range-inputs">
-                                    <input type="number" id="ac-min-points" class="custom-number-input" placeholder="Min" min="0" step="any" />
-                                    <span class="range-separator">-</span>
-                                    <input type="number" id="ac-max-points" class="custom-number-input" placeholder="Max" min="0" step="any" />
-                                </div>
-                            </div>
-
-                            <div id="problem-ac-letters-row" class="filter-row custom-collapse collapsed wide-filter">
-                                <div class="filter-header-row">
-                                    <span class="filter-label">Problem Letters</span>
-                                </div>
-                                <div class="letters-filter-container">
-                                    <div class="chip-group" id="problem-ac-letters-group">
-                                        <label class="chip"><input type="checkbox" value="a"> <span>A</span></label>
-                                        <label class="chip"><input type="checkbox" value="b"> <span>B</span></label>
-                                        <label class="chip"><input type="checkbox" value="c"> <span>C</span></label>
-                                        <label class="chip"><input type="checkbox" value="d"> <span>D</span></label>
-                                        <label class="chip"><input type="checkbox" value="e"> <span>E</span></label>
-                                        <label class="chip"><input type="checkbox" value="f"> <span>F</span></label>
-                                        <label class="chip"><input type="checkbox" value="g"> <span>G</span></label>
-                                        <label class="chip"><input type="checkbox" value="h"> <span>H</span></label>
-                                    </div>
-                                    <div class="custom-index-wrapper">
-                                        <input type="text" id="problem-ac-custom-letters" class="custom-text-input" placeholder="Or custom (e.g. Ex, I, J)" autocomplete="off" />
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="filter-row wide-filter division-group-wrapper" id="problem-ac-division-wrapper">
-                                <div class="filter-header-row">
-                                    <span class="filter-label">AtCoder Types</span>
-                                    <div class="bulk-select-actions">
-                                        <button type="button" class="bulk-btn select-all" data-target="problem-ac-division-group">All</button>
-                                        <button type="button" class="bulk-btn clear-all" data-target="problem-ac-division-group">None</button>
-                                    </div>
-                                </div>
-                                <div class="chip-group" id="problem-ac-division-group">
-                                    <label class="chip"><input type="checkbox" value="abc" checked> <span>Beginner (ABC)</span></label>
-                                    <label class="chip"><input type="checkbox" value="arc" checked> <span>Regular (ARC)</span></label>
-                                    <label class="chip"><input type="checkbox" value="agc" checked> <span>Grand (AGC)</span></label>
-                                    <label class="chip"><input type="checkbox" value="ahc" checked> <span>Heuristic (AHC)</span></label>
-                                    <label class="chip"><input type="checkbox" value="awc" checked> <span>Weekday (AWC)</span></label>
-                                    <label class="chip"><input type="checkbox" value="other" checked> <span>Other</span></label>
-                                </div>
-                            </div>
-
-                            <div id="problem-ac-language-filter" class="filter-row custom-collapse narrow-filter">
-                                <div class="filter-header-row">
-                                    <span class="filter-label">AtCoder Language</span>
-                                </div>
-                                <div class="chip-group">
-                                    <label class="chip"><input type="checkbox" id="problem-ac-english-only" checked> <span>English Only 🌐</span></label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Shared Filters Group -->
-                        <div class="platform-filters-group shared-group">
-                            <div class="filter-row narrow-filter">
-                                <div class="filter-header-row">
-                                    <span class="filter-label">Problems Count</span>
-                                </div>
-                                <input type="number" id="problem-count" class="custom-number-input" value="5" min="1" max="50" />
-                            </div>
-
-                            <div class="filter-row narrow-filter">
-                                <div class="filter-header-row">
-                                    <span class="filter-label">Recency</span>
-                                </div>
-                                <select id="problem-recency-filter" class="custom-select">
-                                    <option value="all">Any Time</option>
-                                    <option value="0.5">Past 6 Months</option>
-                                    <option value="1">Past 1 Year</option>
-                                    <option value="2">Past 2 Years</option>
-                                    <option value="3">Past 3 Years</option>
-                                    <option value="5">Past 5 Years</option>
-                                    <option value="7">Past 7 Years</option>
-                                    <option value="10">Past 10 Years</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                     </div>
                 </div>
             </div>
@@ -419,10 +418,15 @@
         <!-- Main Content Grid -->
         <main class="main-content">
             <!-- Active Result Hero Card -->
-            <section class="hero-section glass-panel" id="main-hero-section">
+            <section class="hero-section panel" id="main-hero-section">
                 <div class="empty-state" id="empty-state">
-                    <div class="hero-icon">🏆</div>
-                    <h2>Ready to Compete?</h2>
+                    <div class="hero-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4Z"></path>
+                            <path d="M17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"></path>
+                        </svg>
+                    </div>
+                    <h2>Ready when you are</h2>
                     <p>Enter your handles and generate a contest to get started.</p>
                 </div>
 
@@ -433,7 +437,7 @@
                             <div class="result-badge type-badge" id="type-badge">CF</div>
                         </div>
                         <div class="duration-badge" id="duration-badge">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <circle cx="12" cy="12" r="10"></circle>
                                 <polyline points="12 6 12 12 16 14"></polyline>
@@ -447,8 +451,8 @@
                     <div class="action-buttons horizontal">
                         <a id="virtual-link" href="#" target="_blank" class="primary-btn">Start Virtual Contest</a>
                         <a id="contest-link" href="#" target="_blank" class="secondary-btn">View Problems</a>
-                        <button id="copy-contest-btn" class="secondary-btn text-btn-inline" title="Copy Contest Details" style="gap: 0.4rem; padding: 0.8rem 1rem; border-radius: 12px; cursor: pointer; display: inline-flex; align-items: center;">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <button id="copy-contest-btn" class="secondary-btn btn-icon" title="Copy Contest Details">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                                 <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                             </svg>
@@ -459,30 +463,37 @@
             </section>
 
             <!-- Contest History -->
-            <section class="history-section glass-panel" id="main-history-section">
+            <section class="history-section panel" id="main-history-section">
                 <div class="history-header">
-                    <h3>Recent Generations</h3>
+                    <h3>Recent generations</h3>
                     <button id="clear-history-btn" class="text-btn hidden">Clear</button>
                 </div>
                 <div class="history-grid" id="history-grid">
-                    <p class="empty-history text-secondary">No history yet in this session.</p>
+                    <p class="empty-history text-secondary">Your recent contests will appear here.</p>
                 </div>
             </section>
 
             <!-- Problem Results Section -->
-            <section class="problems-section glass-panel hidden" id="main-problems-section">
+            <section class="problems-section panel hidden" id="main-problems-section">
                 <div class="history-header">
                     <h3>Fetched Problems</h3>
-                    <button id="copy-all-problems-btn" class="text-btn hidden" style="font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.4rem 0.8rem; background: rgba(255,255,255,0.03); border: 1px solid var(--card-border); border-radius: 8px;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <button id="copy-all-problems-btn" class="text-btn btn-icon hidden">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                         </svg>
                         <span>Copy All (Markdown)</span>
                     </button>
                 </div>
-                <div class="empty-state" id="problems-empty-state" style="margin: auto;">
-                    <div class="hero-icon">🧩</div>
+                <div class="empty-state" id="problems-empty-state">
+                    <div class="hero-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7"></rect>
+                            <rect x="14" y="3" width="7" height="7"></rect>
+                            <rect x="3" y="14" width="7" height="7"></rect>
+                            <rect x="14" y="14" width="7" height="7"></rect>
+                        </svg>
+                    </div>
                     <h2>Find Unsolved Problems</h2>
                     <p>Enter handles and get a curated list of random unsolved problems.</p>
                 </div>

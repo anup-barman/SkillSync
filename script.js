@@ -96,6 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let fetchedProblemsList = [];
     let lastFetchedHandles = "";
     let lastFetchedPlatform = "";
+    const settingsStorageKey = 'skillsync-settings-v1';
+    const historyStorageKey = 'skillsync-contest-history-v1';
 
     function getSelectedPlatform() {
         for (const radio of platformRadios) {
@@ -138,6 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 toggleFiltersBtn.classList.toggle('active', !problemFiltersWrapper.classList.contains('collapsed'));
             }
             hideError();
+            saveSettings();
         });
     });
 
@@ -151,6 +154,7 @@ document.addEventListener('DOMContentLoaded', () => {
             problemFiltersWrapper.classList.toggle('collapsed');
             toggleFiltersBtn.classList.toggle('active', !problemFiltersWrapper.classList.contains('collapsed'));
         }
+        saveSettings();
     });
 
     // Platform UI Selection Logic (Contest)
@@ -193,6 +197,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 lastFetchedHandles = ""; // force fetch
                 fetchUserProfiles();
             }
+            saveSettings();
         });
     });
 
@@ -249,26 +254,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Platform UI Selection Logic (Problems)
     problemPlatformRadios.forEach(radio => {
-        radio.addEventListener('change', updateProblemFiltersUI);
+        radio.addEventListener('change', () => {
+            updateProblemFiltersUI();
+            saveSettings();
+        });
     });
 
     acFilterTypeRadios.forEach(radio => {
-        radio.addEventListener('change', updateProblemFiltersUI);
+        radio.addEventListener('change', () => {
+            updateProblemFiltersUI();
+            saveSettings();
+        });
     });
 
     cfFilterTypeRadios.forEach(radio => {
-        radio.addEventListener('change', updateProblemFiltersUI);
+        radio.addEventListener('change', () => {
+            updateProblemFiltersUI();
+            saveSettings();
+        });
     });
 
     // Handle CF Gym collapse
     sourceGroup.forEach(radio => {
         radio.addEventListener('change', (e) => {
             const platform = getSelectedPlatform();
+
+            cfSourceFilter.classList.remove('source-change');
+            void cfSourceFilter.offsetWidth;
+            cfSourceFilter.classList.add('source-change');
             if (platform === 'codeforces' && e.target.value === 'gym') {
                 cfDivisionWrapper.classList.add('hidden');
             } else if (platform === 'codeforces') {
                 cfDivisionWrapper.classList.remove('hidden');
+                cfDivisionWrapper.classList.remove('source-change');
+                void cfDivisionWrapper.offsetWidth;
+                cfDivisionWrapper.classList.add('source-change');
             }
+            saveSettings();
         });
     });
 
@@ -306,6 +328,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     clearHistoryBtn.addEventListener('click', () => {
         contestHistory = [];
+        localStorage.removeItem(historyStorageKey);
         renderHistory();
     });
 
@@ -318,6 +341,7 @@ document.addEventListener('DOMContentLoaded', () => {
             checkboxes.forEach(cb => {
                 cb.checked = isSelectAll;
             });
+            saveSettings();
         });
     });
 
@@ -344,15 +368,18 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (selectedPlatform === 'cf') {
                     problemCfFiltersGroup.classList.remove('hidden');
                     problemAcFiltersGroup.classList.add('hidden');
-                    problemLettersFilterRow.classList.remove('collapsed');
+                    let currentFilterType = 'rating';
+                    for (const r of cfFilterTypeRadios) if (r.checked) currentFilterType = r.value;
+                    problemCfLettersRow.classList.toggle('collapsed', currentFilterType !== 'letter');
                 } else {
                     problemCfFiltersGroup.classList.add('hidden');
                     problemAcFiltersGroup.classList.remove('hidden');
                     let currentFilterType = 'difficulty';
                     for (const r of acFilterTypeRadios) if (r.checked) currentFilterType = r.value;
-                    problemLettersFilterRow.classList.toggle('collapsed', currentFilterType !== 'letter');
+                    problemAcLettersRow.classList.toggle('collapsed', currentFilterType !== 'letter');
                 }
             }
+            saveSettings();
         });
     });
 
@@ -371,13 +398,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const textToCopy = `🏆 **${name}**\n- Platform: ${type} (${badge})\n- Duration: ${duration}\n- Link: ${link}`;
             navigator.clipboard.writeText(textToCopy).then(() => {
                 const originalHTML = copyContestBtn.innerHTML;
+                copyContestBtn.classList.add('is-copied');
                 copyContestBtn.innerHTML = `
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
-                    <span>Copied!</span>
+                    <span>Copied</span>
                 `;
                 setTimeout(() => {
+                    copyContestBtn.classList.remove('is-copied');
                     copyContestBtn.innerHTML = originalHTML;
                 }, 2000);
             });
@@ -396,38 +425,149 @@ document.addEventListener('DOMContentLoaded', () => {
             
             navigator.clipboard.writeText(textToCopy).then(() => {
                 const originalHTML = copyAllProblemsBtn.innerHTML;
+                copyAllProblemsBtn.classList.add('is-copied');
                 copyAllProblemsBtn.innerHTML = `
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="20 6 9 17 4 12"></polyline>
                     </svg>
-                    <span>Copied!</span>
+                    <span>Copied</span>
                 `;
                 setTimeout(() => {
+                    copyAllProblemsBtn.classList.remove('is-copied');
                     copyAllProblemsBtn.innerHTML = originalHTML;
                 }, 2000);
             });
         });
     }
 
-    // Load handles from localStorage on start
-    function loadCachedHandles() {
-        const cachedCf = localStorage.getItem('cf_handles');
-        const cachedAc = localStorage.getItem('ac_handles');
-        const cachedProbCf = localStorage.getItem('prob_cf_handles');
-        const cachedProbAc = localStorage.getItem('prob_ac_handles');
-        
-        if (cachedCf) handleInput.value = cachedCf;
-        if (cachedAc) handleInputAc.value = cachedAc;
-        if (cachedProbCf) problemHandleCf.value = cachedProbCf;
-        if (cachedProbAc) problemHandleAc.value = cachedProbAc;
-        
-        if (cachedCf || cachedAc) {
-            fetchUserProfiles();
+    function getSelectedValue(name) {
+        const selected = document.querySelector(`input[name="${name}"]:checked`);
+        return selected ? selected.value : '';
+    }
+
+    function getCheckedValues(containerId) {
+        return [...document.querySelectorAll(`#${containerId} input:checked`)].map(input => input.value);
+    }
+
+    function setSelectedValue(name, value) {
+        const input = document.querySelector(`input[name="${name}"][value="${value}"]`);
+        if (input) input.checked = true;
+    }
+
+    function setCheckedValues(containerId, values) {
+        if (!Array.isArray(values)) return;
+        document.querySelectorAll(`#${containerId} input`).forEach(input => {
+            input.checked = values.includes(input.value);
+        });
+    }
+
+    function saveSettings() {
+        const settings = {
+            activeTab: document.querySelector('.tab-btn.active')?.dataset.tab || 'contest',
+            contestFiltersOpen: !contestFiltersWrapper.classList.contains('collapsed'),
+            problemFiltersOpen: !problemFiltersWrapper.classList.contains('collapsed'),
+            contestPlatform: getSelectedValue('platform'),
+            problemPlatform: getSelectedValue('problem_platform'),
+            source: getSelectedValue('source'),
+            cfFilterType: getSelectedValue('cf_filter_type'),
+            acFilterType: getSelectedValue('ac_filter_type'),
+            contestCfHandle: handleInput.value.trim(),
+            contestAcHandle: handleInputAc.value.trim(),
+            problemCfHandle: problemHandleCf.value.trim(),
+            problemAcHandle: problemHandleAc.value.trim(),
+            recency: recencyFilter.value,
+            problemRecency: problemRecencyFilter.value,
+            problemCount: problemCount.value,
+            cfMinRating: cfMinRating.value,
+            cfMaxRating: cfMaxRating.value,
+            acMinDifficulty: acMinDifficulty.value,
+            acMaxDifficulty: acMaxDifficulty.value,
+            acMinPoints: acMinPoints.value,
+            acMaxPoints: acMaxPoints.value,
+            cfCustomLetters: document.getElementById('problem-cf-custom-letters').value,
+            acCustomLetters: document.getElementById('problem-ac-custom-letters').value,
+            contestCfDivisions: getCheckedValues('cf-division-group'),
+            contestAcDivisions: getCheckedValues('ac-division-group'),
+            problemCfDivisions: getCheckedValues('problem-cf-division-group'),
+            problemAcDivisions: getCheckedValues('problem-ac-division-group'),
+            problemCfLetters: getCheckedValues('problem-cf-letters-group'),
+            problemAcLetters: getCheckedValues('problem-ac-letters-group'),
+            contestEnglishOnly: document.getElementById('contest-ac-english-only').checked,
+            problemEnglishOnly: document.getElementById('problem-ac-english-only').checked
+        };
+
+        try {
+            localStorage.setItem(settingsStorageKey, JSON.stringify(settings));
+        } catch (error) {
+            console.warn('Unable to save SkillSync settings.', error);
         }
     }
-    
-    // Call loadCachedHandles on startup
-    loadCachedHandles();
+
+    function loadSavedState() {
+        let settings = null;
+        try {
+            settings = JSON.parse(localStorage.getItem(settingsStorageKey));
+            contestHistory = JSON.parse(localStorage.getItem(historyStorageKey)) || [];
+        } catch (error) {
+            console.warn('Unable to load saved SkillSync data.', error);
+        }
+
+        if (!settings) {
+            handleInput.value = localStorage.getItem('cf_handles') || '';
+            handleInputAc.value = localStorage.getItem('ac_handles') || '';
+            problemHandleCf.value = localStorage.getItem('prob_cf_handles') || '';
+            problemHandleAc.value = localStorage.getItem('prob_ac_handles') || '';
+        } else {
+            setSelectedValue('platform', settings.contestPlatform);
+            setSelectedValue('problem_platform', settings.problemPlatform);
+            setSelectedValue('source', settings.source);
+            setSelectedValue('cf_filter_type', settings.cfFilterType);
+            setSelectedValue('ac_filter_type', settings.acFilterType);
+
+            handleInput.value = settings.contestCfHandle || '';
+            handleInputAc.value = settings.contestAcHandle || '';
+            problemHandleCf.value = settings.problemCfHandle || '';
+            problemHandleAc.value = settings.problemAcHandle || '';
+            recencyFilter.value = settings.recency || 'all';
+            problemRecencyFilter.value = settings.problemRecency || 'all';
+            problemCount.value = settings.problemCount || '5';
+            cfMinRating.value = settings.cfMinRating || '';
+            cfMaxRating.value = settings.cfMaxRating || '';
+            acMinDifficulty.value = settings.acMinDifficulty || '';
+            acMaxDifficulty.value = settings.acMaxDifficulty || '';
+            acMinPoints.value = settings.acMinPoints || '';
+            acMaxPoints.value = settings.acMaxPoints || '';
+            document.getElementById('problem-cf-custom-letters').value = settings.cfCustomLetters || '';
+            document.getElementById('problem-ac-custom-letters').value = settings.acCustomLetters || '';
+            setCheckedValues('cf-division-group', settings.contestCfDivisions);
+            setCheckedValues('ac-division-group', settings.contestAcDivisions);
+            setCheckedValues('problem-cf-division-group', settings.problemCfDivisions);
+            setCheckedValues('problem-ac-division-group', settings.problemAcDivisions);
+            setCheckedValues('problem-cf-letters-group', settings.problemCfLetters);
+            setCheckedValues('problem-ac-letters-group', settings.problemAcLetters);
+            document.getElementById('contest-ac-english-only').checked = settings.contestEnglishOnly !== false;
+            document.getElementById('problem-ac-english-only').checked = settings.problemEnglishOnly !== false;
+            contestFiltersWrapper.classList.toggle('collapsed', !settings.contestFiltersOpen);
+            problemFiltersWrapper.classList.toggle('collapsed', !settings.problemFiltersOpen);
+        }
+
+        updateProblemFiltersUI();
+        platformRadios.forEach(radio => {
+            if (radio.checked) radio.dispatchEvent(new Event('change'));
+        });
+        renderHistory();
+
+        const activeTab = settings?.activeTab;
+        if (activeTab === 'problem') document.querySelector('.tab-btn[data-tab="problem"]').click();
+        if (handleInput.value || handleInputAc.value) fetchUserProfiles();
+    }
+
+    document.querySelectorAll('.control-panel input, .control-panel select').forEach(input => {
+        input.addEventListener('input', saveSettings);
+        input.addEventListener('change', saveSettings);
+    });
+
+    loadSavedState();
 
     async function fetchUserProfiles() {
         const platform = getSelectedPlatform();
@@ -479,10 +619,10 @@ document.addEventListener('DOMContentLoaded', () => {
             card.className = 'user-profile-card';
             const initial = handle.charAt(0).toUpperCase();
             card.innerHTML = `
-                <div class="user-avatar" style="display:flex; justify-content:center; align-items:center; background:#334155; font-weight:bold; color:white; font-size:1.2rem;">${initial}</div>
+                <div class="user-avatar avatar-fallback">${initial}</div>
                 <div class="user-info">
-                    <span class="user-handle" style="color: var(--text-primary)">${handle}</span>
-                    <span class="user-rating" style="text-transform: capitalize;">${getSelectedPlatform()} User</span>
+                    <span class="user-handle">${handle}</span>
+                    <span class="user-rating">${getSelectedPlatform()} User</span>
                 </div>
             `;
             userProfilesContainer.appendChild(card);
@@ -498,14 +638,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             const imgUrl = user.titlePhoto || user.avatar || 'https://userpic.codeforces.org/no-avatar.jpg';
             const rating = user.rating ? `${user.rating} (${user.rank || 'Unrated'})` : 'Unrated';
-            
-            let color = 'var(--text-secondary)';
-            if (user.rating >= 2400) color = '#ff3333';
-            else if (user.rating >= 2100) color = '#ff8c00';
-            else if (user.rating >= 1900) color = '#aa00aa';
-            else if (user.rating >= 1600) color = '#0000ff';
-            else if (user.rating >= 1400) color = '#03a89e';
-            else if (user.rating >= 1200) color = '#008000';
+            const color = getRatingColor(user.rating || 0, true);
 
             card.innerHTML = `
                 <img src="${imgUrl}" alt="${user.handle}" class="user-avatar" onerror="this.src='https://userpic.codeforces.org/no-avatar.jpg'" />
@@ -966,12 +1099,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         if (contestHistory.length > 10) contestHistory.pop();
+        localStorage.setItem(historyStorageKey, JSON.stringify(contestHistory));
         renderHistory();
     }
 
     function renderHistory() {
         if (contestHistory.length === 0) {
-            historyGrid.innerHTML = '<p class="empty-history text-secondary">No history yet in this session.</p>';
+            historyGrid.innerHTML = '<p class="empty-history text-secondary">Your recent contests will appear here.</p>';
             clearHistoryBtn.classList.add('hidden');
             return;
         }
@@ -986,12 +1120,10 @@ document.addEventListener('DOMContentLoaded', () => {
             div.innerHTML = `
                 <div class="history-card-header">
                     <span class="history-type">${item.badge} &bull; ${item.type}</span>
-                    <span class="text-secondary" style="font-size: 0.8rem">${item.timestamp}</span>
+                    <span class="history-time">${item.timestamp}</span>
                 </div>
                 <h4>${item.name}</h4>
-                <div class="text-secondary" style="font-size: 0.85rem; margin-top: auto;">
-                    Duration: ${item.duration}
-                </div>
+                <div class="history-meta">Duration: ${item.duration}</div>
             `;
             
             div.addEventListener('click', () => window.open(item.link, '_blank'));
@@ -1308,32 +1440,34 @@ document.addEventListener('DOMContentLoaded', () => {
             
             card.innerHTML = `
                 <div class="problem-header">
-                    <span class="result-badge type-badge ${badgeClass}" style="padding: 0.2rem 0.6rem; font-size: 0.75rem;">${platformName}</span>
+                    <span class="result-badge ${badgeClass}">${platformName}</span>
                     <span class="problem-id">${p.id}</span>
                 </div>
-                <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: 0.5rem; margin-bottom: 0.5rem;">
-                    <h4 class="problem-name" style="margin-bottom: 0; font-size: 1.05rem; word-break: break-word;" title="${p.name}">${p.name}</h4>
-                    <button class="copy-name-btn" data-copy="${p.id}" style="background: rgba(255,255,255,0.05); border: 1px solid var(--card-border); border-radius: 6px; cursor: pointer; color: var(--text-secondary); padding: 0.3rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" title="Copy Problem ID">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <div class="problem-title-row">
+                    <h4 class="problem-name" title="${p.name}">${p.name}</h4>
+                    <button class="copy-name-btn" data-copy="${p.id}" title="Copy Problem ID">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
                             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
                         </svg>
                     </button>
                 </div>
                 <div class="problem-footer">
-                    <div class="problem-rating" style="color: ${ratingColor}; margin-right: auto; font-size: 0.85rem;">
+                    <div class="problem-rating" style="color: ${ratingColor};">
                         <span class="rating-icon">${isCF ? '★' : '•'}</span> ${p.displayRating || p.rating}
                     </div>
-                    <a href="${p.link}" target="_blank" class="problem-solve-btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;">Solve</a>
+                    <a href="${p.link}" target="_blank" class="problem-solve-btn">Solve</a>
                 </div>
             `;
-            
+
             const copyBtn = card.querySelector('.copy-name-btn');
             copyBtn.addEventListener('click', () => {
                 navigator.clipboard.writeText(copyBtn.getAttribute('data-copy')).then(() => {
                     const originalHTML = copyBtn.innerHTML;
-                    copyBtn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+                    copyBtn.classList.add('is-copied');
+                    copyBtn.innerHTML = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
                     setTimeout(() => {
+                        copyBtn.classList.remove('is-copied');
                         copyBtn.innerHTML = originalHTML;
                     }, 2000);
                 });
@@ -1345,22 +1479,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function getRatingColor(rating, isCF) {
         if (isCF) {
-            if (rating >= 2400) return '#ff3333';
-            if (rating >= 2100) return '#ff8c00';
-            if (rating >= 1900) return '#aa00aa';
-            if (rating >= 1600) return '#0000ff';
-            if (rating >= 1400) return '#03a89e';
-            if (rating >= 1200) return '#008000';
-            return 'var(--text-secondary)';
+            if (rating >= 2400) return 'var(--tier-red)';
+            if (rating >= 2100) return 'var(--tier-orange)';
+            if (rating >= 1900) return 'var(--tier-purple)';
+            if (rating >= 1600) return 'var(--tier-blue)';
+            if (rating >= 1400) return 'var(--tier-cyan)';
+            if (rating >= 1200) return 'var(--tier-green)';
+            return 'var(--tier-gray)';
         } else {
-            if (rating >= 2800) return '#ff0000';
-            if (rating >= 2400) return '#ff8c00';
-            if (rating >= 2000) return '#c0c000';
-            if (rating >= 1600) return '#0000ff';
-            if (rating >= 1200) return '#00ffff';
-            if (rating >= 800) return '#008000';
-            if (rating >= 400) return '#8b4513';
-            return 'var(--text-secondary)';
+            if (rating >= 2800) return 'var(--tier-red)';
+            if (rating >= 2400) return 'var(--tier-orange)';
+            if (rating >= 2000) return 'var(--tier-yellow)';
+            if (rating >= 1600) return 'var(--tier-blue)';
+            if (rating >= 1200) return 'var(--tier-cyan)';
+            if (rating >= 800) return 'var(--tier-green)';
+            if (rating >= 400) return 'var(--tier-brown)';
+            return 'var(--tier-gray)';
         }
     }
 
